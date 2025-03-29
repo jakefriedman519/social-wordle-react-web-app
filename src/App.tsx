@@ -1,35 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-function App() {
-  const [count, setCount] = useState(0)
+import store from "./store";
+import { Provider } from "react-redux";
+import Account from "./Account";
+import Session from "./Account/Session";
 
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <Provider store={store}>
+        <Session>
+          <Routes>
+            <Route path="*" element={<Account />} />
+            {/* TODO make home screen not */}
+            {/* <Route path="/" element={<Navigate to="daily/wordle" />} /> */}
+            {/* Users route */}
+            {/* Tournaments */}
+            {/* Past Worldes */}
+            {/* Friends? */}
+          </Routes>
+        </Session>
+      </Provider>
+    </BrowserRouter>
+  );
 }
-
-export default App
