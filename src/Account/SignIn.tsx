@@ -16,8 +16,10 @@ export default function Signin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const signin = async () => {
-    const user = await client.signin(credentials);
-    if (!user) return;
+    const user = {username: credentials.username, password: credentials.password};
+    // TODO: Uncomment the following line once the client is set up
+    // const user = await client.signin(credentials);
+    // if (!user) return;
     dispatch(setCurrentUser(user));
     navigate("/");
   };
@@ -44,12 +46,12 @@ export default function Signin() {
       />
       <Button
         onClick={signin}
-        id="wd-signin-btn"
+        id="signin-btn"
         className="btn btn-primary w-100"
       >
         Sign in
       </Button>
-      <Link id="wd-signup-link" to="/sign-up">
+      <Link id="signup-link" to="/sign-up">
         Sign up
       </Link>
     </div>
