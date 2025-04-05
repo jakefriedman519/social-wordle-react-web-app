@@ -33,6 +33,7 @@ export default function WordleGame({
     if (gameOver || !isValidKey(key)) return;
 
     if (key === "ENTER") {
+      console.log(currentGuess, targetWord);
       if (currentGuess.length === targetWord.length) {
         const newGuesses = [...guesses, currentGuess];
         setGuesses(newGuesses);

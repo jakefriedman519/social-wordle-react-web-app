@@ -7,7 +7,7 @@ const axiosWithCredentials = axios.create({ withCredentials: true });
 
 export const getWordleByDay = async (day: string) => {
   const response = await axiosWithCredentials.get(
-    `${WORDLES_EXTERNAL_API}/daily/${day}`
+    `${WORDLES_EXTERNAL_API}/${day}`
   );
   return response.data;
 };

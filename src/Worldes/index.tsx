@@ -5,17 +5,21 @@ import * as client from "./client";
 export default function Worldes() {
   // TODO pull from backend, have this component take an optional date i think which we can use to pull from backend
   // TODO in tournaments dont use this component, just use WordleGame
-  const [targetWord, setTargetWord] = useState<string>("APPLE"); // TODO remove default value
+  const [targetWord, setTargetWord] = useState<string>(""); // TODO remove default value
   const [maxGuesses, setMaxGuesses] = useState<number>(6);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [gameOver, setGameOver] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const fetchWordleByDay = async (day: string = Date.now().toString()) => {
+  const fetchWordleByDay = async (
+    day: string = new Date().toISOString().split("T")[0]
+  ) => {
     try {
       const response = await client.getWordleByDay(day);
-      setTargetWord(response.targetWord);
-      setMaxGuesses(response.maxGuesses);
+      setTargetWord(response.solution.toUpperCase());
+      setMaxGuesses(response?.maxGuesses || 6);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching Wordle data:", error);
     }
@@ -34,18 +38,25 @@ export default function Worldes() {
   }, []);
 
   return (
-    <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light py-5">
-      <h1 className="display-4 fw-bold mb-5">Social Wordle</h1>
-      <WordleGame
-        targetWord={targetWord}
-        maxGuesses={maxGuesses}
-        guesses={guesses}
-        currentGuess={currentGuess}
-        gameOver={gameOver}
-        setGuesses={setGuesses}
-        setCurrentGuess={setCurrentGuess}
-        setGameOver={setGameOver}
-      />
-    </div>
+    <>
+      {isLoading ? (
+        // TODO add better loader / loader component
+        <div>Loading...</div>
+      ) : (
+        <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light py-5">
+          <h1 className="display-4 fw-bold mb-5">Social Wordle</h1>
+          <WordleGame
+            targetWord={targetWord}
+            maxGuesses={maxGuesses}
+            guesses={guesses}
+            currentGuess={currentGuess}
+            gameOver={gameOver}
+            setGuesses={setGuesses}
+            setCurrentGuess={setCurrentGuess}
+            setGameOver={setGameOver}
+          />
+        </div>
+      )}
+    </>
   );
 }
