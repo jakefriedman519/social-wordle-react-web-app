@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import * as client from "./client";
 import { Button, FormControl, Toast, ToastContainer } from "react-bootstrap";
 
+// TODO maybe add a toast that pops up if redirected from protected route that says "You need to sign in to access this page" or something like that
 export default function Signin() {
   const [credentials, setCredentials] = useState<{
     username: string;

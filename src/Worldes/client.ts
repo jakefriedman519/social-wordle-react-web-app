@@ -38,3 +38,11 @@ export const updateUserWordleGuessByDate = async ({
     gameOver,
   });
 };
+
+// TODO make this endpoint work
+export const getWordleGuessesByDay = async (day: string) => {
+  const response = await axiosWithCredentials.get(
+    `${WORDLE_GUESSES_API}/${day}`
+  );
+  return response.data;
+}

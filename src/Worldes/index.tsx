@@ -3,10 +3,11 @@ import WordleGame from "./WordleGame/WordleGame";
 import * as client from "./client";
 import { useParams, useNavigate } from "react-router-dom";
 import { Spinner, Toast, ToastContainer } from "react-bootstrap";
-import DatePickerModal from "./DatePickerModal";
+import DatePickerModal from "../shared/components/DatePickerModal";
 
+// TODO makle this work for custom wordles
 export default function Worldes() {
-  const { day } = useParams<{ day: string }>();
+  const { day, wordleId } = useParams<{ day?: string; wordleId?: string }>();
   const navigate = useNavigate();
   // TODO in tournaments dont use this component, just use WordleGame
   const [targetWord, setTargetWord] = useState<string>("");
@@ -75,6 +76,10 @@ export default function Worldes() {
   };
 
   useEffect(() => {
+    if (wordleId) {
+      // TODO fetch wordle by id & would need to chenge fetchUserWordleGuess to support custom wordles
+      return;
+    }
     // If day is passed in the URL, use that to fetch the wordle NEEDS TO BE IN YYYY-MM-DD FORMAT, else use the current date
     fetchWordleByDay(day || new Date().toISOString().split("T")[0]);
     fetchUserWordleGuess();
@@ -106,7 +111,6 @@ export default function Worldes() {
             handleGameOver={handleGameOver}
           />
           {/* TODO add quick button to go to next and previous, also move this to a better place */}
-          {/* TODO use this modal in leaderborads too to see leaderboard for specific date */}
           <DatePickerModal datePickerHandler={datePickerHandler} /> 
           <ToastContainer
             position="bottom-end"

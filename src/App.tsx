@@ -7,6 +7,8 @@ import Session from "./Account/Session";
 import Navigation from "./Navigation";
 import Worldes from "./Worldes";
 import ProtectedRoute from "./Account/ProtectedRoute";
+import Leaderboard from "./Leaderboard";
+import Tournaments from "./Tournaments";
 
 export default function App() {
   return (
@@ -18,20 +20,22 @@ export default function App() {
             <Route path="/" element={<Navigate to="wordle" />} />
             <Route path="/wordle" element={<Worldes />} />
             <Route path="/wordle/:day" element={<Worldes />} />
-            {/* TODO replace with real components */}
+            <Route path="/wordle/custom/:wordleId" element={<Worldes />} />
             <Route
-              path="/tournaments"
+              path="/tournaments/:tournamentId"
               element={
                 <ProtectedRoute>
-                  <Worldes />
+                  <Tournaments />
                 </ProtectedRoute>
               }
             />
+            {/* Current day leaderboard isn't protected */}
+            <Route path="/leaderboard/" element={<Leaderboard />} /> 
             <Route
-              path="/leaderboard"
+              path="/leaderboard/:day"
               element={
                 <ProtectedRoute>
-                  <Worldes />
+                  <Leaderboard />
                 </ProtectedRoute>
               }
             />
