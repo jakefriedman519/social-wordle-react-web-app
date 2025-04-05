@@ -6,6 +6,7 @@ import Account from "./Account";
 import Session from "./Account/Session";
 import Navigation from "./Navigation";
 import Worldes from "./Worldes";
+import ProtectedRoute from "./Account/ProtectedRoute";
 
 export default function App() {
   return (
@@ -17,8 +18,16 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Navigate to="wordle" />} />
               <Route path="/wordle" element={<Worldes />} />
+              <Route
+                path="/tournaments"
+                element={
+                  <ProtectedRoute>
+                    {/* TODO replace ~ either use protected route OR hide page which is my preference behind like component - you must sign in to view this page*/}
+                    <Worldes />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<Account />} />
-              {/* TODO make protected routes */}
               {/* Tournaments */}
               {/* Past Worldes */}
             </Routes>

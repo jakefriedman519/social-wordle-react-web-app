@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { setCurrentUser } from "./reducer";
 import { useDispatch } from "react-redux";
 import * as client from "./client";
-import { Button, FormControl } from "react-bootstrap";
+import { Button, FormControl, Toast, ToastContainer } from "react-bootstrap";
 
 export default function Signin() {
   const [credentials, setCredentials] = useState<{
@@ -13,13 +13,20 @@ export default function Signin() {
     username: "",
     password: "",
   });
+  const [show, setShow] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const signin = async () => {
-    const user = {username: credentials.username, password: credentials.password};
-    // TODO: Uncomment the following line once the client is set up
-    // const user = await client.signin(credentials);
-    // if (!user) return;
+    let user;
+    try {
+      user = await client.signin(credentials);
+    } catch {
+      setShow(true);
+      setToastMessage("Invalid username or password");
+      return;
+    }
+    if (!user) return;
     dispatch(setCurrentUser(user));
     navigate("/");
   };
@@ -54,6 +61,11 @@ export default function Signin() {
       <Link id="signup-link" to="/sign-up">
         Sign up
       </Link>
+      <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 1 }}>
+        <Toast onClose={() => setShow(false)} show={show} delay={3000} autohide>
+          <Toast.Header>{toastMessage}</Toast.Header>
+        </Toast>
+      </ToastContainer>
     </div>
   );
 }

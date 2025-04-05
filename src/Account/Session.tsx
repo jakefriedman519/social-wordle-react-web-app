@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { setCurrentUser } from "./reducer";
 import { useDispatch } from "react-redux";
 export default function Session({ children }: { children: React.ReactNode }) {
-  const [pending, setPending] = useState(false); // TODO change to true once we set up auth
+  const [pending, setPending] = useState(true);
   const dispatch = useDispatch();
   const fetchProfile = async () => {
     try {
