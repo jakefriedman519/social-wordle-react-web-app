@@ -6,31 +6,22 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store.ts";
 
 export default function Account() {
-  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
 
   return (
-    <div>
-      <h1>Account</h1>
-      <div className="d-flex">
-        <div>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <Navigate
-                  to={
-                    currentUser
-                      ? "/profile"
-                      : "/sign-in"
-                  }
-                />
-              }
-            />
-            <Route path="/sign-in" element={<Signin />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/sign-up" element={<Signup />} />
-          </Routes>
-        </div>
+    <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light py-5">
+      <div>
+        <Routes>
+          <Route
+            path="/"
+            element={<Navigate to={currentUser ? "/profile" : "/sign-in"} />}
+          />
+          <Route path="/sign-in" element={<Signin />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/sign-up" element={<Signup />} />
+        </Routes>
       </div>
     </div>
   );

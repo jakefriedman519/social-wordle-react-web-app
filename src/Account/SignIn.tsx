@@ -32,7 +32,7 @@ export default function Signin() {
   };
 
   return (
-    <div>
+    <div className="d-flex flex-column justify-content-center align-items-center">
       <h3>Sign in</h3>
       <FormControl
         value={credentials.username}
@@ -54,7 +54,7 @@ export default function Signin() {
       <Button
         onClick={signin}
         id="signin-btn"
-        className="btn btn-primary w-100"
+        className="btn btn-primary w-100 mb-2"
       >
         Sign in
       </Button>

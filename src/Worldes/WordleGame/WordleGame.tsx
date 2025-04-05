@@ -11,6 +11,7 @@ export default function WordleGame({
   setGuesses,
   setCurrentGuess,
   setGameOver,
+  handleEnter,
 }: {
   targetWord: string;
   guesses: string[];
@@ -20,6 +21,7 @@ export default function WordleGame({
   setGuesses: React.Dispatch<React.SetStateAction<string[]>>;
   setCurrentGuess: React.Dispatch<React.SetStateAction<string>>;
   setGameOver: React.Dispatch<React.SetStateAction<boolean>>;
+  handleEnter: () => void; // This should use the parameters controlled by the parent component to save the guesses
 }) {
   // This needs to be an object for the react hook to get called when pressing the same key
   const [key, setKey] = useState({ key: "" });
@@ -33,7 +35,6 @@ export default function WordleGame({
     if (gameOver || !isValidKey(key)) return;
 
     if (key === "ENTER") {
-      console.log(currentGuess, targetWord);
       if (currentGuess.length === targetWord.length) {
         const newGuesses = [...guesses, currentGuess];
         setGuesses(newGuesses);
@@ -42,10 +43,11 @@ export default function WordleGame({
         if (currentGuess === targetWord || newGuesses.length === maxGuesses) {
           setGameOver(true);
         }
+        handleEnter();
       }
     } else if (key === "BACKSPACE") {
       setCurrentGuess((prevGuess) => prevGuess.slice(0, -1));
-    } else {
+    } else if (currentGuess.length < targetWord.length) {
       setCurrentGuess((prevGuess) => prevGuess + key);
     }
   };

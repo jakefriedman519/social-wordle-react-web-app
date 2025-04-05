@@ -11,3 +11,11 @@ export const getWordleByDay = async (day: string) => {
   );
   return response.data;
 };
+
+// TODO make this endpoint work by using the user session id
+export const getUserWordleGuessesByDate = async (date: string) => {
+  const response = await axiosWithCredentials.get(
+    `${WORDLE_GUESSES_API}/${date}`
+  );
+  return response.data;
+}

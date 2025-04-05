@@ -14,24 +14,29 @@ export default function App() {
       <Provider store={store}>
         <Session>
           <Navigation />
-          <div className="main-content-offset">
-            <Routes>
-              <Route path="/" element={<Navigate to="wordle" />} />
-              <Route path="/wordle" element={<Worldes />} />
-              <Route
-                path="/tournaments"
-                element={
-                  <ProtectedRoute>
-                    {/* TODO replace ~ either use protected route OR hide page which is my preference behind like component - you must sign in to view this page*/}
-                    <Worldes />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<Account />} />
-              {/* Tournaments */}
-              {/* Past Worldes */}
-            </Routes>
-          </div>
+          <Routes>
+            <Route path="/" element={<Navigate to="wordle" />} />
+            <Route path="/wordle" element={<Worldes />} />
+            <Route path="/wordle/:day" element={<Worldes />} />
+            {/* TODO replace with real components */}
+            <Route
+              path="/tournaments"
+              element={
+                <ProtectedRoute>
+                  <Worldes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/leaderboard"
+              element={
+                <ProtectedRoute>
+                  <Worldes />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Account />} />
+          </Routes>
         </Session>
       </Provider>
     </BrowserRouter>

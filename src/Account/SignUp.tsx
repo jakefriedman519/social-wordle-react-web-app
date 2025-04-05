@@ -22,7 +22,7 @@ export default function SignUp() {
   };
 
   return (
-    <div>
+    <div className="d-flex flex-column justify-content-center align-items-center">
       <h3>Sign up</h3>
       <FormControl
         value={user.username}
@@ -43,7 +43,6 @@ export default function SignUp() {
       >
         Sign up
       </Button>
-      <br />
       <Link to="/sign-in">
         Sign in
       </Link>
