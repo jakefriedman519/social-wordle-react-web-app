@@ -11,7 +11,8 @@ export default function WordleGame({
   setGuesses,
   setCurrentGuess,
   setGameOver,
-  handleEnter,
+  handleGuess,
+  handleGameOver,
 }: {
   targetWord: string;
   guesses: string[];
@@ -21,7 +22,8 @@ export default function WordleGame({
   setGuesses: React.Dispatch<React.SetStateAction<string[]>>;
   setCurrentGuess: React.Dispatch<React.SetStateAction<string>>;
   setGameOver: React.Dispatch<React.SetStateAction<boolean>>;
-  handleEnter: () => void; // This should use the parameters controlled by the parent component to save the guesses
+  handleGuess: () => void; // This should use the parameters controlled by the parent component to save the guesses
+  handleGameOver: () => void;
 }) {
   // This needs to be an object for the react hook to get called when pressing the same key
   const [key, setKey] = useState({ key: "" });
@@ -38,12 +40,6 @@ export default function WordleGame({
       if (currentGuess.length === targetWord.length) {
         const newGuesses = [...guesses, currentGuess];
         setGuesses(newGuesses);
-        setCurrentGuess("");
-
-        if (currentGuess === targetWord || newGuesses.length === maxGuesses) {
-          setGameOver(true);
-        }
-        handleEnter();
       }
     } else if (key === "BACKSPACE") {
       setCurrentGuess((prevGuess) => prevGuess.slice(0, -1));
@@ -67,6 +63,15 @@ export default function WordleGame({
     handleKeyPress(key.key.toUpperCase());
   }, [key]);
 
+  useEffect(() => {
+    if (currentGuess === targetWord || guesses.length === maxGuesses) {
+      setGameOver(true);
+      handleGameOver();
+    }
+    handleGuess();
+    setCurrentGuess("");
+  }, [guesses]);
+
   return (
     <>
       <GuessGrid
@@ -81,16 +86,6 @@ export default function WordleGame({
         guesses={guesses}
         targetWord={targetWord}
       />
-
-      {/* TODO: fix this / change Game Over Message */}
-      {gameOver && (
-        <div className="text-center">
-          <p className="fs-4 fw-bold mb-2">
-            {guesses.includes(targetWord) ? "You won!" : "Game Over"}
-          </p>
-          <p className="mb-3">The word was: {targetWord}</p>
-        </div>
-      )}
     </>
   );
 }

@@ -3,7 +3,6 @@ import accountReducer from "./Account/reducer";
 
 const store = configureStore({
   reducer: {
-    // TODO add more reducers
     accountReducer,
   }, 
 });

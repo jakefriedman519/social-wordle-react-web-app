@@ -18,4 +18,23 @@ export const getUserWordleGuessesByDate = async (date: string) => {
     `${WORDLE_GUESSES_API}/${date}`
   );
   return response.data;
-}
+};
+
+// TODO make this endpoint work by using the user session id
+export const updateUserWordleGuessByDate = async ({
+  date,
+  guesses,
+  currentGuess,
+  gameOver,
+}: {
+  date: string;
+  guesses: string[];
+  currentGuess: string;
+  gameOver: boolean;
+}) => {
+  await axiosWithCredentials.patch(`${WORDLE_GUESSES_API}/${date}`, {
+    guesses,
+    currentGuess,
+    gameOver,
+  });
+};

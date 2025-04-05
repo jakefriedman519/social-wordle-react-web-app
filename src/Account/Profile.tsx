@@ -6,7 +6,7 @@ import * as client from "./client";
 import { RootState } from "../store";
 import { Button } from "react-bootstrap";
 
-// TODO make this work
+// TODO make this work and pull info, allow users to edit their profile & make public profiles so u can see their info from leaderboards etc
 export default function Profile() {
   const [profile, setProfile] = useState<object>({});
   const dispatch = useDispatch();

@@ -2,19 +2,28 @@ import { useEffect, useState } from "react";
 import WordleGame from "./WordleGame/WordleGame";
 import * as client from "./client";
 import { useParams, useNavigate } from "react-router-dom";
-import { Spinner } from "react-bootstrap";
+import { Spinner, Toast, ToastContainer } from "react-bootstrap";
 import DatePickerModal from "./DatePickerModal";
 
 export default function Worldes() {
+  const { day } = useParams<{ day: string }>();
+  const navigate = useNavigate();
   // TODO in tournaments dont use this component, just use WordleGame
-  const [targetWord, setTargetWord] = useState<string>(""); // TODO remove default value
+  const [targetWord, setTargetWord] = useState<string>("");
   const [maxGuesses, setMaxGuesses] = useState<number>(6);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { day } = useParams<{ day: string }>();
-  const navigate = useNavigate();
+  const [toast, setToast] = useState<{
+    show: boolean;
+    toastHeader: string;
+    toastBody: string;
+  }>({
+    show: false,
+    toastHeader: "",
+    toastBody: "",
+  });
 
   const fetchWordleByDay = async (day: string) => {
     try {
@@ -22,14 +31,17 @@ export default function Worldes() {
       setTargetWord(response.solution.toUpperCase());
       setMaxGuesses(response?.maxGuesses || 6);
       setIsLoading(false);
-    } catch (error) {
-      // TODO throw toast if error
-      console.error("Error fetching Wordle data:", error);
+    } catch {
+      setIsLoading(false);
+      setToast({
+        show: true,
+        toastHeader: "Error",
+        toastBody: "Could not fetch wordle for the day",
+      });
     }
   };
 
   const fetchUserWordleGuess = async () => {
-    // TODO make this endpoint work by using the user session id
     const response = await client.getUserWordleGuessesByDate(
       day || new Date().toISOString().split("T")[0]
     );
@@ -42,20 +54,31 @@ export default function Worldes() {
 
   const datePickerHandler = (date: string) => {
     navigate(`/wordle/${date}`);
-    window.location.reload();
+    window.location.reload(); // Hacky, maybe we can remove once we fetch the user guess
   };
 
-  const handleEnter = () => {
-    // TODO handle enter key press
-    // Save the guesses to the database (use patch for the wordleGuesses collection based on userId and date IF it exists)
+  const handleGuess = async () => {
+    await client.updateUserWordleGuessByDate({
+      date: day || new Date().toISOString().split("T")[0],
+      guesses,
+      currentGuess,
+      gameOver,
+    });
+  };
+
+  const handleGameOver = () => {
+    setToast({
+      show: true,
+      toastHeader: "Game Over",
+      toastBody: `${guesses[guesses.length - 1] === targetWord ? 'You won!' : ''} The word was ${targetWord}`,
+    });
   };
 
   useEffect(() => {
-    // If day is passed in the URL, use that to fetch the wordle NEEDS TO BE IN YYYY-MM-DD FORMAT
-    // Else use the current date
+    // If day is passed in the URL, use that to fetch the wordle NEEDS TO BE IN YYYY-MM-DD FORMAT, else use the current date
     fetchWordleByDay(day || new Date().toISOString().split("T")[0]);
     fetchUserWordleGuess();
-  }, []);
+  }, [day]);
 
   return (
     <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light py-5">
@@ -66,8 +89,6 @@ export default function Worldes() {
           </Spinner>
         </>
       ) : (
-        // TODO add a date picker so that the user can select a date and play the wordle for that date
-        // TODO make this a modal, have the same modal in leaderboards to see the rankings for the other wordles
         <>
           <h1 className="display-4 fw-bold mb-5">
             Social Wordle ~ {day || new Date().toISOString().split("T")[0]}
@@ -81,10 +102,25 @@ export default function Worldes() {
             setGuesses={setGuesses}
             setCurrentGuess={setCurrentGuess}
             setGameOver={setGameOver}
-            handleEnter={handleEnter}
+            handleGuess={handleGuess}
+            handleGameOver={handleGameOver}
           />
           {/* TODO add quick button to go to next and previous, also move this to a better place */}
-          <DatePickerModal datePickerHandler={datePickerHandler} />
+          {/* TODO use this modal in leaderborads too to see leaderboard for specific date */}
+          <DatePickerModal datePickerHandler={datePickerHandler} /> 
+          <ToastContainer
+            position="bottom-end"
+            className="p-3"
+            style={{ zIndex: 1 }}
+          >
+            <Toast
+              onClose={() => setToast({ ...toast, show: false })}
+              show={toast.show}
+            >
+              <Toast.Header>{toast.toastHeader}</Toast.Header>
+              {toast.toastBody && <Toast.Body>{toast.toastBody}</Toast.Body>}
+            </Toast>
+          </ToastContainer>
         </>
       )}
     </div>
