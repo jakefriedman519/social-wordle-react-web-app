@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Spinner, Toast, ToastContainer } from "react-bootstrap";
 import DatePickerModal from "../shared/components/DatePickerModal";
 
-// TODO makle this work for custom wordles
+// TODO makle this work for custom wordles -> probably move this/make generic, but more likely move it
 export default function Worldes() {
   const { day, wordleId } = useParams<{ day?: string; wordleId?: string }>();
   const navigate = useNavigate();
@@ -20,10 +20,12 @@ export default function Worldes() {
     show: boolean;
     toastHeader: string;
     toastBody: string;
+    refreshLink: boolean;
   }>({
     show: false,
     toastHeader: "",
     toastBody: "",
+    refreshLink: false,
   });
 
   const fetchWordleByDay = async (day: string) => {
@@ -32,12 +34,15 @@ export default function Worldes() {
       setTargetWord(response.solution.toUpperCase());
       setMaxGuesses(response?.maxGuesses || 6);
       setIsLoading(false);
-    } catch {
+    } catch (error) {
       setIsLoading(false);
       setToast({
         show: true,
         toastHeader: "Error",
-        toastBody: "Could not fetch wordle for the day",
+        toastBody:
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || "Could not fetch wordle",
+        refreshLink: true,
       });
     }
   };
@@ -48,7 +53,6 @@ export default function Worldes() {
     );
     if (response) {
       setGuesses(response.guesses);
-      setCurrentGuess(response.currentGuess);
       setGameOver(response.gameOver);
     }
   };
@@ -59,19 +63,23 @@ export default function Worldes() {
   };
 
   const handleGuess = async () => {
-    await client.updateUserWordleGuessByDate({
-      date: day || new Date().toISOString().split("T")[0],
-      guesses,
-      currentGuess,
-      gameOver,
-    });
+    if (guesses.length) {
+      await client.updateUserWordleGuessByDate({
+        createdDate: day || new Date().toISOString().split("T")[0],
+        guesses,
+        completed: gameOver && guesses[guesses.length - 1] === targetWord,
+      });
+    }
   };
 
   const handleGameOver = () => {
     setToast({
       show: true,
       toastHeader: "Game Over",
-      toastBody: `${guesses[guesses.length - 1] === targetWord ? 'You won!' : ''} The word was ${targetWord}`,
+      toastBody: `${
+        guesses[guesses.length - 1] === targetWord ? "You won!" : ""
+      } The word was ${targetWord}`,
+      refreshLink: false,
     });
   };
 
@@ -96,7 +104,9 @@ export default function Worldes() {
       ) : (
         <>
           <h1 className="display-4 fw-bold mb-5">
-            Social Wordle ~ {day || new Date().toISOString().split("T")[0]}
+            {wordleId
+              ? "Custom Wordle"
+              : day || new Date().toISOString().split("T")[0]}
           </h1>
           <WordleGame
             targetWord={targetWord}
@@ -111,7 +121,7 @@ export default function Worldes() {
             handleGameOver={handleGameOver}
           />
           {/* TODO add quick button to go to next and previous, also move this to a better place */}
-          <DatePickerModal datePickerHandler={datePickerHandler} /> 
+          <DatePickerModal datePickerHandler={datePickerHandler} />
           <ToastContainer
             position="bottom-end"
             className="p-3"
@@ -122,7 +132,17 @@ export default function Worldes() {
               show={toast.show}
             >
               <Toast.Header>{toast.toastHeader}</Toast.Header>
-              {toast.toastBody && <Toast.Body>{toast.toastBody}</Toast.Body>}
+              {toast.toastBody && (
+                <Toast.Body>
+                  {toast.toastBody}
+                  {toast.refreshLink && (
+                    <>
+                      <br />
+                      <a href="/wordle">Return to today</a>
+                    </>
+                  )}
+                </Toast.Body>
+              )}
             </Toast>
           </ToastContainer>
         </>

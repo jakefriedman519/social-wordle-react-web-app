@@ -8,7 +8,8 @@ export default function Navigation() {
   // TODO add real icons
   const links = [
     { label: "Account", path: "profile", icon: FaRegCircleUser },
-    { label: "Daily", path: "/wordle", icon: FaRegCircleUser }, 
+    { label: "Daily", path: "/wordle", icon: FaRegCircleUser },
+    { label: "Custom", path: "/wordle/custom", icon: FaRegCircleUser },
     { label: "Tournaments", path: "tournaments", icon: FaRegCircleUser },
     { label: "Leaderboard", path: "leaderboard", icon: FaRegCircleUser },
     { label: "Settings", path: "settings", icon: FaRegCircleUser },
@@ -28,7 +29,7 @@ export default function Navigation() {
         <Navbar.Collapse id="navbar-nav">
           <Nav className="ms-auto">
             {links.map((link) => {
-              const isActive = pathname.includes(link.path);
+              const isActive = link.label === "Daily" ? pathname.includes(link.path) && !pathname.includes('custom') : pathname.includes(link.path);
               return (
                 <Nav.Link
                   as={Link}

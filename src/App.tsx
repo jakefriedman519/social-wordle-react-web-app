@@ -9,6 +9,7 @@ import Worldes from "./Worldes";
 import ProtectedRoute from "./Account/ProtectedRoute";
 import Leaderboard from "./Leaderboard";
 import Tournaments from "./Tournaments";
+import CustomWordles from "./Worldes/CustomWordles";
 
 export default function App() {
   return (
@@ -20,9 +21,10 @@ export default function App() {
             <Route path="/" element={<Navigate to="wordle" />} />
             <Route path="/wordle" element={<Worldes />} />
             <Route path="/wordle/:day" element={<Worldes />} />
+            <Route path="/wordle/custom" element={<CustomWordles />} />
             <Route path="/wordle/custom/:wordleId" element={<Worldes />} />
             <Route
-              path="/tournaments/:tournamentId"
+              path="/tournaments"
               element={
                 <ProtectedRoute>
                   <Tournaments />

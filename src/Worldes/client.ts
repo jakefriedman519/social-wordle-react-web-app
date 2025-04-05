@@ -12,37 +12,32 @@ export const getWordleByDay = async (day: string) => {
   return response.data;
 };
 
-// TODO make this endpoint work by using the user session id
 export const getUserWordleGuessesByDate = async (date: string) => {
   const response = await axiosWithCredentials.get(
-    `${WORDLE_GUESSES_API}/${date}`
+    `${WORDLE_GUESSES_API}/user/date/${date}`
   );
   return response.data;
 };
 
-// TODO make this endpoint work by using the user session id
 export const updateUserWordleGuessByDate = async ({
-  date,
+  createdDate,
   guesses,
-  currentGuess,
-  gameOver,
+  completed,
 }: {
-  date: string;
+  createdDate: string;
   guesses: string[];
-  currentGuess: string;
-  gameOver: boolean;
+  completed: boolean;
 }) => {
-  await axiosWithCredentials.patch(`${WORDLE_GUESSES_API}/${date}`, {
+  await axiosWithCredentials.patch(`${WORDLE_GUESSES_API}`, {
+    createdDate,
     guesses,
-    currentGuess,
-    gameOver,
+    completed
   });
 };
 
-// TODO make this endpoint work
 export const getWordleGuessesByDay = async (day: string) => {
   const response = await axiosWithCredentials.get(
-    `${WORDLE_GUESSES_API}/${day}`
+    `${WORDLE_GUESSES_API}/user/date/${day}`
   );
   return response.data;
 }
