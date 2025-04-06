@@ -63,7 +63,7 @@ export default function Worldes() {
       await client.updateUserWordleGuessByDate({
         createdDate: day || new Date().toISOString().split("T")[0],
         guesses,
-        completed: gameOver && guesses[guesses.length - 1] === targetWord,
+        completed: guesses[guesses.length - 1] === targetWord,
       });
     }
   };

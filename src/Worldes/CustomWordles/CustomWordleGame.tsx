@@ -42,7 +42,9 @@ export default function CustomWordleGame() {
       wordleId || ""
     );
     setGuesses(response?.guesses ?? []);
-    setCurrentGuess(response?.guesses ? response.guesses[response.guesses.length - 1] : "");
+    setCurrentGuess(
+      response?.guesses ? response.guesses[response.guesses.length - 1] : ""
+    );
   };
 
   const handleGuess = async () => {
@@ -50,8 +52,7 @@ export default function CustomWordleGame() {
       await client.updateUserWordleGuessByWordleId({
         wordleId,
         guesses,
-        completed:
-          gameOver && guesses[guesses.length - 1] === wordle?.wordleWord,
+        completed: guesses[guesses.length - 1] === wordle?.wordleWord,
       });
     }
   };
