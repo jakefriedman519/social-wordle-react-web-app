@@ -40,7 +40,7 @@ export default function CreateWordleModal({
   ): Promise<void> => {
     e.preventDefault();
     await client
-      .createCustomWordle({ ...formData, title: formData.title.toUpperCase() })
+      .createCustomWordle({ ...formData, wordleWord: formData.wordleWord.toUpperCase() })
       .then((response) => {
         handleClose(); // Close the modal after submission
         navigate(`/wordle/custom/${response._id}`);
