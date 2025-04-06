@@ -97,62 +97,61 @@ export default function CustomWordles() {
 
   return (
     <div className="container mt-5">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="fw-bold">Custom Wordles</h1>
+        <Button
+          variant="primary"
+          onClick={() => setShowCreateWordleModal(true)}
+        >
+          Create a Wordle
+        </Button>
+      </div>
+
+      <Form.Group className="mb-3">
+        <Form.Control
+          type="text"
+          placeholder="Search by title"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+      </Form.Group>
+
+      <Row className="mb-4">
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label>Filter by Date</Form.Label>
+            <Form.Control
+              type="date"
+              value={createdDate}
+              onChange={(e) => setCreatedDate(e.target.value)}
+            />
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label>Filter by User</Form.Label>
+            <Form.Select
+              value={selectedUserId}
+              onChange={(e) => setSelectedUserId(e.target.value)}
+            >
+              <option value="">All Users</option>
+              {users.map((user) => (
+                <option key={user._id} value={user._id}>
+                  {user.username}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Col>
+      </Row>
       {isLoading ? (
-        <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="d-flex justify-content-center align-items-center">
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
         </div>
       ) : (
         <>
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="fw-bold">Custom Wordles</h1>
-            <Button
-              variant="primary"
-              onClick={() => setShowCreateWordleModal(true)}
-            >
-              Create a Wordle
-            </Button>
-          </div>
-
-          <Form.Group className="mb-3">
-            <Form.Control
-              type="text"
-              placeholder="Search by title"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-          </Form.Group>
-
-          <Row className="mb-4">
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Filter by Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={createdDate}
-                  onChange={(e) => setCreatedDate(e.target.value)}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Filter by User</Form.Label>
-                <Form.Select
-                  value={selectedUserId}
-                  onChange={(e) => setSelectedUserId(e.target.value)}
-                >
-                  <option value="">All Users</option>
-                  {users.map((user) => (
-                    <option key={user._id} value={user._id}>
-                      {user.username}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          </Row>
-
           {wordles.map((wordle) => (
             <div key={wordle._id} className="mb-3">
               <Card>
