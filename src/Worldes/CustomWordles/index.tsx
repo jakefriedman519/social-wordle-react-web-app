@@ -81,15 +81,17 @@ export default function CustomWordles() {
   }, [search, createdDate, selectedUserId]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      // Fetch all custom wordles and users on initial load
-      const response = await client.getAllCustomWordles();
-      setWordles(response);
-      setAllWordles(response);
-      setIsLoading(false);
-    };
-    fetchData();
-  }, []);
+    if (!showCreateWordleModal) {
+      const fetchData = async () => {
+        // Fetch all custom wordles and users on initial load
+        const response = await client.getAllCustomWordles();
+        setWordles(response);
+        setAllWordles(response);
+        setIsLoading(false);
+      };
+      fetchData();
+    }
+  }, [showCreateWordleModal]);
 
   useEffect(() => {
     // Set users based on allWordles
@@ -109,8 +111,8 @@ export default function CustomWordles() {
         <Button
           variant="primary"
           onClick={() => {
-            setShowCreateWordleModal(true);
             setEditingWordle(null);
+            setShowCreateWordleModal(true);
           }}
         >
           Create a Wordle

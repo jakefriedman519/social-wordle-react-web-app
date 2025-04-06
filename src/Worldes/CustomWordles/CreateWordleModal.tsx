@@ -74,7 +74,12 @@ export default function CreateWordleModal({
         wordleWord: wordle.wordleWord,
         difficulty: wordle.difficulty,
       });
-      console.log("Editing wordle", wordle);
+    } else {
+      setFormData({
+        title: "",
+        wordleWord: "",
+        difficulty: "EASY",
+      });
     }
   }, [wordle]);
 
