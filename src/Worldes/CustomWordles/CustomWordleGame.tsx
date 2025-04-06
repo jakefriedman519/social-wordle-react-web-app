@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
-import WordleGame from "./WordleGame/WordleGame";
-import * as client from "./client";
-import { useParams, useNavigate } from "react-router-dom";
+import WordleGame from "../WordleGame/WordleGame";
+import * as client from "../client";
+import { useNavigate, useParams } from "react-router-dom";
 import { Spinner, Toast, ToastContainer } from "react-bootstrap";
-import DatePickerModal from "../shared/components/DatePickerModal";
+import { CustomWordle } from ".";
 
-export default function Worldes() {
-  const { day } = useParams<{ day?: string }>();
+export default function CustomWordleGame() {
   const navigate = useNavigate();
-  // TODO in tournaments dont use this component, just use WordleGame
-  const [targetWord, setTargetWord] = useState<string>("");
+  const { wordleId } = useParams<{ wordleId: string }>();
+  const [wordle, setWordle] = useState<CustomWordle>();
   const [maxGuesses, setMaxGuesses] = useState<number>(6);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState<string>("");
@@ -27,43 +26,32 @@ export default function Worldes() {
     refreshLink: false,
   });
 
-  const fetchWordleByDay = async (day: string) => {
+  const fetchWordle = async () => {
     try {
-      const response = await client.getWordleByDay(day);
-      setTargetWord(response.solution.toUpperCase());
+      const response = await client.getWordleByWordleId(wordleId || "");
+      setWordle(response);
       setMaxGuesses(6);
       setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      setToast({
-        show: true,
-        toastHeader: "Error",
-        toastBody:
-          (error as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || "Could not fetch wordle",
-        refreshLink: true,
-      });
+    } catch {
+      navigate("/wordle/custom");
     }
   };
 
   const fetchUserWordleGuess = async () => {
-    const response = await client.getUserWordleGuessesByDate(
-      day || new Date().toISOString().split("T")[0]
+    const response = await client.getUserWordleGuessesByWordleId(
+      wordleId || ""
     );
     setGuesses(response?.guesses ?? []);
     setCurrentGuess(response?.guesses ? response.guesses[response.guesses.length - 1] : "");
   };
 
-  const datePickerHandler = (date: string) => {
-    navigate(`/wordle/${date}`);
-  };
-
   const handleGuess = async () => {
-    if (guesses.length) {
-      await client.updateUserWordleGuessByDate({
-        createdDate: day || new Date().toISOString().split("T")[0],
+    if (guesses.length && wordleId) {
+      await client.updateUserWordleGuessByWordleId({
+        wordleId,
         guesses,
-        completed: gameOver && guesses[guesses.length - 1] === targetWord,
+        completed:
+          gameOver && guesses[guesses.length - 1] === wordle?.wordleWord,
       });
     }
   };
@@ -73,17 +61,16 @@ export default function Worldes() {
       show: true,
       toastHeader: "Game Over",
       toastBody: `${
-        guesses[guesses.length - 1] === targetWord ? "You won!" : ""
-      } The word was ${targetWord}`,
-      refreshLink: false,
+        guesses[guesses.length - 1] === wordle?.wordleWord ? "You won!" : ""
+      } The word was ${wordle?.wordleWord}`,
+      refreshLink: true,
     });
   };
 
   useEffect(() => {
-    // If day is passed in the URL, use that to fetch the wordle NEEDS TO BE IN YYYY-MM-DD FORMAT, else use the current date
-    fetchWordleByDay(day || new Date().toISOString().split("T")[0]);
+    fetchWordle();
     fetchUserWordleGuess();
-  }, [day]);
+  }, [wordleId]);
 
   return (
     <>
@@ -95,11 +82,9 @@ export default function Worldes() {
         </div>
       ) : (
         <>
-          <h1 className="display-4 fw-bold my-5">
-            {day || new Date().toISOString().split("T")[0]}
-          </h1>
+          <h1 className="display-4 fw-bold my-5">{wordle?.title}</h1>
           <WordleGame
-            targetWord={targetWord}
+            targetWord={wordle?.wordleWord || ""}
             maxGuesses={maxGuesses}
             guesses={guesses}
             currentGuess={currentGuess}
@@ -110,8 +95,6 @@ export default function Worldes() {
             handleGuess={handleGuess}
             handleGameOver={handleGameOver}
           />
-          {/* TODO add quick button to go to next and previous, also move this to a better place */}
-          <DatePickerModal datePickerHandler={datePickerHandler} />
           <ToastContainer
             position="bottom-end"
             className="p-3"
@@ -128,7 +111,7 @@ export default function Worldes() {
                   {toast.refreshLink && (
                     <>
                       <br />
-                      <a href="/wordle">Return to today</a>
+                      <a href="/wordle/custom">Return to custom wordles</a>
                     </>
                   )}
                 </Toast.Body>

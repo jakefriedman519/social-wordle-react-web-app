@@ -10,6 +10,8 @@ import ProtectedRoute from "./Account/ProtectedRoute";
 import Leaderboard from "./Leaderboard";
 import Tournaments from "./Tournaments";
 import CustomWordles from "./Worldes/CustomWordles";
+import CreateWordle from "./Worldes/CustomWordles/CreateWordle";
+import CustomWordleGame from "./Worldes/CustomWordles/CustomWordleGame";
 
 export default function App() {
   return (
@@ -17,32 +19,59 @@ export default function App() {
       <Provider store={store}>
         <Session>
           <Navigation />
-          <Routes>
-            <Route path="/" element={<Navigate to="wordle" />} />
-            <Route path="/wordle" element={<Worldes />} />
-            <Route path="/wordle/:day" element={<Worldes />} />
-            <Route path="/wordle/custom" element={<CustomWordles />} />
-            <Route path="/wordle/custom/:wordleId" element={<Worldes />} />
-            <Route
-              path="/tournaments"
-              element={
-                <ProtectedRoute>
-                  <Tournaments />
-                </ProtectedRoute>
-              }
-            />
-            {/* Current day leaderboard isn't protected */}
-            <Route path="/leaderboard/" element={<Leaderboard />} /> 
-            <Route
-              path="/leaderboard/:day"
-              element={
-                <ProtectedRoute>
-                  <Leaderboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<Account />} />
-          </Routes>
+          <div className="container-fluid min-vh-100 d-flex flex-column align-items-center bg-light">
+            <Routes>
+              {/* wordles */}
+              <Route path="/" element={<Navigate to="wordle" />} />
+              <Route path="/wordle" element={<Worldes />} />
+              <Route path="/wordle/:day" element={<Worldes />} />
+              {/* custom wordles */}
+              <Route
+                path="/wordle/custom"
+                element={
+                  <ProtectedRoute>
+                    <CustomWordles />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/wordle/custom/create"
+                element={
+                  <ProtectedRoute>
+                    <CreateWordle />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/wordle/custom/:wordleId"
+                element={
+                  <ProtectedRoute>
+                    <CustomWordleGame />
+                  </ProtectedRoute>
+                }
+              />
+              {/* tournaments */}
+              <Route
+                path="/tournaments"
+                element={
+                  <ProtectedRoute>
+                    <Tournaments />
+                  </ProtectedRoute>
+                }
+              />
+              {/* leaderboard */}
+              <Route path="/leaderboard/" element={<Leaderboard />} />
+              <Route
+                path="/leaderboard/:day"
+                element={
+                  <ProtectedRoute>
+                    <Leaderboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Account />} />
+            </Routes>
+          </div>
         </Session>
       </Provider>
     </BrowserRouter>

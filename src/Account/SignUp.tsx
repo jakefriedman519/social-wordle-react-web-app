@@ -22,7 +22,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="d-flex flex-column justify-content-center align-items-center">
+    <div className="d-flex flex-column justify-content-center align-items-center my-5">
       <h3>Sign up</h3>
       <FormControl
         value={user.username}

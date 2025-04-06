@@ -14,7 +14,7 @@ export default function Account() {
   // TODO have a my wordles page, see past wordles and stats, see past tournaments, also have a place to create wordles and see created wordles ..
   // allow users to send the link (with uuid of created wordle) to other users to play the wordle, use same uuid to see leaderboard of the wordle
   return (
-    <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light py-5">
+    <>
       <div>
         <Routes>
           <Route
@@ -34,6 +34,6 @@ export default function Account() {
           <Route path="/sign-up" element={<Signup />} />
         </Routes>
       </div>
-    </div>
+    </>
   );
 }
