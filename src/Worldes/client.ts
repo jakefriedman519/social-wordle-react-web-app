@@ -38,7 +38,7 @@ export const updateUserWordleGuessByDate = async ({
 
 export const getWordleGuessesByDay = async (day: string) => {
   const response = await axiosWithCredentials.get(
-    `${WORDLE_GUESSES_API}/user/date/${day}`
+    `${WORDLE_GUESSES_API}/date/${day}`
   );
   return response.data;
 }

@@ -25,7 +25,9 @@ export default function Leaderboard() {
       const response = await client.getWordleGuessesByDay(
         day || new Date().toISOString().split("T")[0]
       );
+      console.log("Leaderboard response: ", response); // TODO populate username
       setLeaderboard({ leaderboard: response, isLoading: false });
+      setLeaderboard({ leaderboard: [], isLoading: false });
     } catch {
       setLeaderboard({ leaderboard: [], isLoading: false });
     }
@@ -41,7 +43,7 @@ export default function Leaderboard() {
   }, [day]);
 
   return (
-    <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light py-5">
+    <div>
       <h1>Leaderboard</h1>
       {leaderboard.isLoading ? (
         <p>Loading...</p>
