@@ -1,27 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Button, Modal, Row, Col } from "react-bootstrap";
 import * as client from "../client";
 import { useNavigate } from "react-router-dom";
 
-export interface NewWordle {
+export interface Wordle {
   title: string;
   wordleWord: string;
   difficulty: string;
+  _id?: string;
 }
 
 export default function CreateWordleModal({
   show,
   handleClose,
+  wordle,
 }: {
   show: boolean;
   handleClose: () => void;
+  wordle: Wordle | null;
 }) {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<NewWordle>({
-    title: "",
-    wordleWord: "",
-    difficulty: "EASY",
-  });
+  const [formData, setFormData] = useState<Wordle>(
+    wordle || {
+      title: "",
+      wordleWord: "",
+      difficulty: "EASY",
+    }
+  );
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -29,7 +34,7 @@ export default function CreateWordleModal({
     >
   ): void => {
     const { name, value } = e.target;
-    setFormData((prev: NewWordle) => ({
+    setFormData((prev: Wordle) => ({
       ...prev,
       [name]: value,
     }));
@@ -39,18 +44,46 @@ export default function CreateWordleModal({
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
-    await client
-      .createCustomWordle({ ...formData, wordleWord: formData.wordleWord.toUpperCase() })
-      .then((response) => {
-        handleClose(); // Close the modal after submission
-        navigate(`/wordle/custom/${response._id}`);
-      });
+    if (wordle) {
+      await client
+        .updateCustomWordle({
+          ...formData,
+          wordleWord: formData.wordleWord.toUpperCase(),
+          _id: wordle._id,
+        })
+        .then(() => {
+          handleClose(); // Close the modal after submission
+        });
+    } else {
+      await client
+        .createCustomWordle({
+          ...formData,
+          wordleWord: formData.wordleWord.toUpperCase(),
+        })
+        .then((response) => {
+          handleClose(); // Close the modal after submission
+          navigate(`/wordle/custom/${response._id}`);
+        });
+    }
   };
+
+  useEffect(() => {
+    if (wordle) {
+      setFormData({
+        title: wordle.title,
+        wordleWord: wordle.wordleWord,
+        difficulty: wordle.difficulty,
+      });
+      console.log("Editing wordle", wordle);
+    }
+  }, [wordle]);
 
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Create Your Own Wordle</Modal.Title>
+        <Modal.Title>
+          {wordle ? "Edit Wordle" : "Create Your Own Wordle"}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
@@ -104,7 +137,7 @@ export default function CreateWordleModal({
           </Form.Group>
 
           <Button variant="primary" type="submit">
-            Create Wordle
+            {wordle ? "Edit Wordle" : "Create Wordle"}
           </Button>
         </Form>
       </Modal.Body>

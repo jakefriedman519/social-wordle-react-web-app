@@ -1,6 +1,7 @@
 import { SetStateAction, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
+// TODO move this logic outside of this component
 export default function DatePickerModal({
   datePickerHandler,
 }: {

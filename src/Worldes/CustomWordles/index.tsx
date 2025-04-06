@@ -3,6 +3,8 @@ import { Button, Card, Form, Spinner, Row, Col } from "react-bootstrap";
 import * as client from "../client";
 import CreateWordleModal from "./CreateWordleModal";
 import _ from "lodash";
+import { RootState } from "../../store";
+import { useSelector } from "react-redux";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
@@ -21,6 +23,9 @@ export interface CustomWordle {
 }
 
 export default function CustomWordles() {
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
   const [allWordles, setAllWordles] = useState<CustomWordle[]>([]);
   const [wordles, setWordles] = useState<CustomWordle[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -31,6 +36,8 @@ export default function CustomWordles() {
   const [users, setUsers] = useState<User[]>([]);
   const [showCreateWordleModal, setShowCreateWordleModal] =
     useState<boolean>(false);
+
+  const [editingWordle, setEditingWordle] = useState<CustomWordle | null>(null);
 
   const fetchCustomWordles = async ({
     title,
@@ -101,7 +108,10 @@ export default function CustomWordles() {
         <h1 className="fw-bold">Custom Wordles</h1>
         <Button
           variant="primary"
-          onClick={() => setShowCreateWordleModal(true)}
+          onClick={() => {
+            setShowCreateWordleModal(true);
+            setEditingWordle(null);
+          }}
         >
           Create a Wordle
         </Button>
@@ -165,6 +175,20 @@ export default function CustomWordles() {
                     <strong>Difficulty:</strong> {wordle.difficulty}
                   </Card.Text>
                   <div className="d-flex justify-content-end">
+                    {currentUser &&
+                      (currentUser as { _id: string })?._id ===
+                        wordle.userId._id && (
+                        <Button
+                          variant="secondary"
+                          className="me-2"
+                          onClick={() => {
+                            setEditingWordle(wordle);
+                            setShowCreateWordleModal(true);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      )}
                     <a
                       href={`/wordle/custom/${wordle._id}`}
                       className="btn btn-primary"
@@ -180,6 +204,7 @@ export default function CustomWordles() {
           <CreateWordleModal
             show={showCreateWordleModal}
             handleClose={() => setShowCreateWordleModal(false)}
+            wordle={editingWordle}
           />
         </>
       )}

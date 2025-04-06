@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Spinner, Toast, ToastContainer } from "react-bootstrap";
 import DatePickerModal from "../shared/components/DatePickerModal";
 
+// TODO time how long it took to guess
 export default function Worldes() {
   const { day } = useParams<{ day?: string }>();
   const navigate = useNavigate();
