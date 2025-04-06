@@ -52,10 +52,17 @@ export default function Worldes() {
     );
     setGuesses(response?.guesses ?? []);
     setCurrentGuess(response?.guesses ? response.guesses[response.guesses.length - 1] : "");
+    setGameOver(response?.completed ?? false);
   };
 
   const datePickerHandler = (date: string) => {
     navigate(`/wordle/${date}`);
+    setToast({
+      show: false,
+      toastHeader: "",
+      toastBody: "",
+      refreshLink: false,
+    });
   };
 
   const handleGuess = async () => {
