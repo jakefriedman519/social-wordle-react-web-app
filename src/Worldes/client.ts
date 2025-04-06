@@ -71,13 +71,12 @@ export const updateUserWordleGuessByWordleId = async ({
   guesses: string[];
   completed: boolean;
 }) => {
-  await axiosWithCredentials.patch(`${WORDLE_GUESSES_API}`, {
+  await axiosWithCredentials.patch(`${WORDLE_GUESSES_API}/custom`, {
     wordleId,
     guesses,
     completed
   });
 };
-
 
 export const createCustomWordle = async (wordle: NewWordle) => {
   const response = await axiosWithCredentials.post(`${WORDLES_API}`, wordle);
