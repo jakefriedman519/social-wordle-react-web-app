@@ -1,8 +1,9 @@
 // TODO query by the wordleId, we should create this ourself i think
 
 import { useEffect, useState } from "react";
-import { Card, Form, Spinner } from "react-bootstrap";
+import { Button, Card, Form, Spinner } from "react-bootstrap";
 import * as client from "../client";
+import CreateWordleModal from "./CreateWordleModal";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
@@ -27,6 +28,8 @@ export default function CustomWordles() {
   const [wordles, setWordles] = useState<CustomWordle[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
+  const [showCreateWordleModal, setShowCreateWordleModal] =
+    useState<boolean>(false);
 
   const fetchCustomWordles = async () => {
     try {
@@ -58,9 +61,9 @@ export default function CustomWordles() {
         <>
           <div className="d-flex justify-content-between align-items-center flex-row mb-4">
             <h1 className="fw-bold display">Custom Wordles</h1>
-            <a href={`/wordle/custom/create`} className="btn btn-primary">
+            <Button variant="primary" onClick={() => setShowCreateWordleModal(true)}>
               Create a Wordle
-            </a>
+            </Button>
           </div>
           <Form.Group className="mb-3">
             <Form.Control
@@ -76,7 +79,8 @@ export default function CustomWordles() {
                 <Card.Body>
                   <Card.Title>{wordle.title}</Card.Title>
                   <Card.Text>
-                    <strong>Created By:</strong> {wordle.userId?.username} <br />
+                    <strong>Created By:</strong> {wordle.userId?.username}{" "}
+                    <br />
                     <strong>Created Date:</strong>{" "}
                     {new Date(wordle.createdDate).toLocaleDateString()} <br />
                     <strong>Difficulty:</strong> {wordle.difficulty}
@@ -93,6 +97,10 @@ export default function CustomWordles() {
               </Card>
             </div>
           ))}
+          <CreateWordleModal
+            show={showCreateWordleModal}
+            handleClose={() => setShowCreateWordleModal(false)}
+          />
         </>
       )}
     </div>

@@ -10,7 +10,6 @@ import ProtectedRoute from "./Account/ProtectedRoute";
 import Leaderboard from "./Leaderboard";
 import Tournaments from "./Tournaments";
 import CustomWordles from "./Worldes/CustomWordles";
-import CreateWordle from "./Worldes/CustomWordles/CreateWordle";
 import CustomWordleGame from "./Worldes/CustomWordles/CustomWordleGame";
 
 export default function App() {
@@ -31,14 +30,6 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <CustomWordles />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/wordle/custom/create"
-                element={
-                  <ProtectedRoute>
-                    <CreateWordle />
                   </ProtectedRoute>
                 }
               />
