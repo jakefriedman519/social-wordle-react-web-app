@@ -93,3 +93,7 @@ export const updateCustomWordle = async (wordle: Wordle) => {
   );
   return response.data;
 };
+
+export const deleteCustomWordle = async (wordleId: string) => {
+  await axiosWithCredentials.delete(`${WORDLES_API}/${wordleId}`);
+}

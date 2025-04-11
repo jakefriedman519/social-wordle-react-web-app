@@ -144,6 +144,18 @@ export default function CreateWordleModal({
           <Button variant="primary" type="submit">
             {wordle ? "Edit Wordle" : "Create Wordle"}
           </Button>
+          {wordle && (
+            <Button
+              variant="danger"
+              className="ms-2"
+              onClick={async () => {
+                await client.deleteCustomWordle(wordle._id);
+                handleClose();
+              }}
+            >
+              Delete Wordle
+            </Button>
+          )}
         </Form>
       </Modal.Body>
     </Modal>
