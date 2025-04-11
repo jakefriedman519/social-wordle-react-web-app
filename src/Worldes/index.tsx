@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import WordleGame from "./WordleGame/WordleGame";
 import * as client from "./client";
 import { useParams, useNavigate } from "react-router-dom";
-import { Spinner, Toast, ToastContainer } from "react-bootstrap";
+import { Button, Spinner, Toast, ToastContainer } from "react-bootstrap";
 import DatePickerModal from "../shared/components/DatePickerModal";
+import { BsChevronLeft, BsCalendar, BsChevronRight } from "react-icons/bs";
 
-// TODO time how long it took to guess
 export default function Worldes() {
   const { day } = useParams<{ day?: string }>();
   const navigate = useNavigate();
@@ -16,6 +16,8 @@ export default function Worldes() {
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState<boolean>(false);
+  const [timeSpent, setTimeSpent] = useState<number>(0); // in seconds
   const [toast, setToast] = useState<{
     show: boolean;
     toastHeader: string;
@@ -52,12 +54,17 @@ export default function Worldes() {
       day || new Date().toISOString().split("T")[0]
     );
     setGuesses(response?.guesses ?? []);
-    setCurrentGuess(response?.guesses ? response.guesses[response.guesses.length - 1] : "");
+    setCurrentGuess(
+      response?.guesses ? response.guesses[response.guesses.length - 1] : ""
+    );
+    setTimeSpent(response?.timeSpent ?? 0);
     setGameOver(response?.completed ?? false);
   };
 
-  const datePickerHandler = (date: string) => {
-    navigate(`/wordle/${date}`);
+  const handleDateChange = (date: Date) => {
+    setIsDatePickerOpen(false);
+    const dateString = date.toISOString().split("T")[0];
+    navigate(`/wordle/${dateString}`);
     setToast({
       show: false,
       toastHeader: "",
@@ -72,6 +79,7 @@ export default function Worldes() {
         createdDate: day || new Date().toISOString().split("T")[0],
         guesses,
         completed: guesses[guesses.length - 1] === targetWord,
+        timeSpent,
       });
     }
   };
@@ -92,6 +100,17 @@ export default function Worldes() {
     fetchWordleByDay(day || new Date().toISOString().split("T")[0]);
     fetchUserWordleGuess();
   }, [day]);
+
+  // Initialize timer if game is not over
+  useEffect(() => {
+    // Realisitcally this should hit the backend every second, but we'll just do it when the user submits a guess as to not overwhelm the server
+    if (!gameOver) {
+      const intervalId = setInterval(() => {
+        setTimeSpent((timeSpent) => timeSpent + 1);
+      }, 1000);
+      return () => clearInterval(intervalId);
+    }
+  }, [gameOver]);
 
   return (
     <>
@@ -118,8 +137,62 @@ export default function Worldes() {
             handleGuess={handleGuess}
             handleGameOver={handleGameOver}
           />
-          {/* TODO add quick button to go to next and previous, also move this to a better place */}
-          <DatePickerModal datePickerHandler={datePickerHandler} />
+
+          {/* Date Navigation and Timer */}
+          <div className="d-flex flex-column align-items-center mb-4">
+            <div className="d-flex gap-2">
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => {
+                  const previousDay = new Date(
+                    day || new Date().toISOString().split("T")[0]
+                  );
+                  previousDay.setDate(previousDay.getDate() - 1);
+                  handleDateChange(previousDay);
+                }}
+                aria-label="Previous day"
+              >
+                <BsChevronLeft style={{ fontSize: "16px" }} />
+              </Button>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => setIsDatePickerOpen(true)}
+                className="d-flex align-items-center gap-2"
+              >
+                <BsCalendar style={{ fontSize: "16px" }} />
+                <span className="d-none d-sm-inline">Change Date</span>
+              </Button>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => {
+                  const previousDay = new Date(
+                    day || new Date().toISOString().split("T")[0]
+                  );
+                  previousDay.setDate(previousDay.getDate() + 1);
+                  handleDateChange(previousDay);
+                }}
+                disabled={day === new Date().toISOString().split("T")[0]}
+                aria-label="Next day"
+              >
+                <BsChevronRight style={{ fontSize: "16px" }} />
+              </Button>
+            </div>
+
+            {/* Timer Display */}
+            <div className="fs-6 py-2 px-3">Time spent: {timeSpent}</div>
+          </div>
+
+          {/* Date Picker */}
+          <DatePickerModal
+            isOpen={isDatePickerOpen}
+            onClose={() => setIsDatePickerOpen(false)}
+            onDateChange={handleDateChange}
+          />
+
+          {/* Toast Notification */}
           <ToastContainer
             position="bottom-end"
             className="p-3"

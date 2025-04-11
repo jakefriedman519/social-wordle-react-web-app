@@ -1,52 +1,52 @@
-import { SetStateAction, useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { useState } from "react";
+import { Modal, Button } from "react-bootstrap";
+import ReactDatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-// TODO move this logic outside of this component
+interface DatePickerModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onDateChange: (date: Date) => void;
+}
+
 export default function DatePickerModal({
-  datePickerHandler,
-}: {
-  datePickerHandler: (date: string) => void;
-}) {
-  const [show, setShow] = useState(false);
-  const [date, setDate] = useState("");
+  isOpen,
+  onClose,
+  onDateChange,
+}: DatePickerModalProps) {
+  const [date, setDate] = useState<Date>();
 
-  const handleShow = () => setShow(true);
-  const handleClose = () => setShow(false);
-  const handleChange = (e: { target: { value: SetStateAction<string> } }) =>
-    setDate(e.target.value);
-
-  const handleSubmit = () => {
-    handleClose();
-    if (date) {
-      datePickerHandler(date);
+  const handleSelect = (newDate: Date | null) => {
+    if (newDate) {
+      setDate(newDate);
     }
   };
 
-  return (
-    <>
-      <Button variant="primary" onClick={handleShow}>
-        Open Date Picker
-      </Button>
+  const normalizeDate = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
 
-      <Modal show={show} onHide={handleClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Select a Date</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group controlId="formDate">
-            <Form.Label>Date</Form.Label>
-            <Form.Control type="date" value={date} onChange={handleChange} />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            Save Date
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+  return (
+    <Modal show={isOpen} onHide={onClose} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Select Date</Modal.Title>
+      </Modal.Header>
+      <Modal.Body className="d-flex justify-content-center py-4">
+        <ReactDatePicker
+          selected={date}
+          onChange={handleSelect}
+          inline
+          maxDate={new Date()}
+        />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={() => date && onDateChange(normalizeDate(date))}>
+          Apply
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }

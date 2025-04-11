@@ -149,7 +149,7 @@ export default function CreateWordleModal({
               variant="danger"
               className="ms-2"
               onClick={async () => {
-                await client.deleteCustomWordle(wordle._id);
+                await client.deleteCustomWordle(wordle._id as string);
                 handleClose();
               }}
             >

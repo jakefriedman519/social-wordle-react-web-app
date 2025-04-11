@@ -24,15 +24,18 @@ export const updateUserWordleGuessByDate = async ({
   createdDate,
   guesses,
   completed,
+  timeSpent,
 }: {
   createdDate: string;
   guesses: string[];
   completed: boolean;
+  timeSpent: number;
 }) => {
   await axiosWithCredentials.patch(`${WORDLE_GUESSES_API}`, {
     createdDate,
     guesses,
     completed,
+    timeSpent,
   });
 };
 
@@ -69,15 +72,18 @@ export const updateUserWordleGuessByWordleId = async ({
   wordleId,
   guesses,
   completed,
+  timeSpent,
 }: {
   wordleId: string;
   guesses: string[];
   completed: boolean;
+  timeSpent: number;
 }) => {
   await axiosWithCredentials.patch(`${WORDLE_GUESSES_API}/custom`, {
     wordleId,
     guesses,
     completed,
+    timeSpent,
   });
 };
 

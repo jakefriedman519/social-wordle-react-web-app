@@ -14,6 +14,7 @@ export default function CustomWordleGame() {
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [timeSpent, setTimeSpent] = useState<number>(0); // in seconds
   const [toast, setToast] = useState<{
     show: boolean;
     toastHeader: string;
@@ -53,6 +54,7 @@ export default function CustomWordleGame() {
         wordleId,
         guesses,
         completed: guesses[guesses.length - 1] === wordle?.wordleWord,
+        timeSpent,
       });
     }
   };
@@ -72,6 +74,16 @@ export default function CustomWordleGame() {
     fetchWordle();
     fetchUserWordleGuess();
   }, [wordleId]);
+
+  // Initialize timer if game is not over
+  useEffect(() => {
+    if (!gameOver) {
+      const intervalId = setInterval(() => {
+        setTimeSpent((timeSpent) => timeSpent + 1);
+      }, 1000);
+      return () => clearInterval(intervalId);
+    }
+  }, [gameOver]);
 
   return (
     <>
@@ -96,6 +108,7 @@ export default function CustomWordleGame() {
             handleGuess={handleGuess}
             handleGameOver={handleGameOver}
           />
+          <div className="fs-6 py-2 px-3">Time spent: {timeSpent}</div>
           <ToastContainer
             position="bottom-end"
             className="p-3"

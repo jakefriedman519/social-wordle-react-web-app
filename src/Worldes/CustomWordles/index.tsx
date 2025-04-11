@@ -191,6 +191,7 @@ export default function CustomWordles() {
                           Edit
                         </Button>
                       )}
+                    {/* TODO add leaderboard */}
                     <a
                       href={`/wordle/custom/${wordle._id}`}
                       className="btn btn-primary"
@@ -202,7 +203,6 @@ export default function CustomWordles() {
               </Card>
             </div>
           ))}
-
           <CreateWordleModal
             show={showCreateWordleModal}
             handleClose={() => setShowCreateWordleModal(false)}
