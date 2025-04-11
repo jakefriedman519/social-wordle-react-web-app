@@ -15,7 +15,7 @@ export default function Account() {
   // allow users to send the link (with uuid of created wordle) to other users to play the wordle, use same uuid to see leaderboard of the wordle
   return (
     <>
-      <div>
+      <div className="container mt-5">
         <Routes>
           <Route
             path="/"

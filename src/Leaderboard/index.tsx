@@ -39,7 +39,9 @@ export default function Leaderboard() {
   };
 
   const handleDateChange = (date: string) => {
-    navigate(`/leaderboard/${date}`);
+    if (date !== new Date().toISOString().split("T")[0]) {
+      navigate(`/leaderboard/${date}`);
+    }
   };
 
   useEffect(() => {

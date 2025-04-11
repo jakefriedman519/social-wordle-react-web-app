@@ -53,7 +53,7 @@ export default function App() {
                 }
               />
               {/* leaderboard */}
-              <Route path="/leaderboard/" element={<Leaderboard />} />
+              <Route path="/leaderboard/" element={<Leaderboard />} /> 
               <Route
                 path="/leaderboard/:day"
                 element={

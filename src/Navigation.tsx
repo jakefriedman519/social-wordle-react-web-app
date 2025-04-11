@@ -1,18 +1,19 @@
 import { FaRegCircleUser } from "react-icons/fa6";
 import { Link, useLocation } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
+import { BsCalendar, BsTrophy } from "react-icons/bs";
+import { MdOutlineLeaderboard } from "react-icons/md";
+import { FaPencilAlt } from "react-icons/fa";
 
 // TODO change the colors/theme of the navbar/app
 export default function Navigation() {
   const { pathname } = useLocation();
-  // TODO add real icons
   const links = [
     { label: "Account", path: "profile", icon: FaRegCircleUser },
-    { label: "Daily", path: "/wordle", icon: FaRegCircleUser },
-    { label: "Custom", path: "/wordle/custom", icon: FaRegCircleUser },
-    { label: "Tournaments", path: "tournaments", icon: FaRegCircleUser },
-    { label: "Leaderboard", path: "leaderboard", icon: FaRegCircleUser },
-    { label: "Settings", path: "settings", icon: FaRegCircleUser },
+    { label: "Daily", path: "/wordle", icon: BsCalendar },
+    { label: "Custom", path: "/wordle/custom", icon: FaPencilAlt },
+    { label: "Tournaments", path: "tournaments", icon: BsTrophy },
+    { label: "Leaderboard", path: "leaderboard", icon: MdOutlineLeaderboard },
   ];
 
   return (
