@@ -46,6 +46,13 @@ export const getWordleGuessesByDay = async (day: string) => {
   return response.data;
 };
 
+export const getWordleGuessesByWorldeId = async (wordleId: string) => {
+  const response = await axiosWithCredentials.get(
+    `${WORDLE_GUESSES_API}/wordleId/${wordleId}`
+  );
+  return response.data;
+};
+
 export const getAllCustomWordles = async (query = {}) => {
   const queryString = Object.entries(query)
     .map(([key, value]) => `${key}=${value}`)

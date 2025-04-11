@@ -181,7 +181,7 @@ export default function CustomWordles() {
                       (currentUser as { _id: string })?._id ===
                         wordle.userId._id && (
                         <Button
-                          variant="secondary"
+                          variant="warning"
                           className="me-2"
                           onClick={() => {
                             setEditingWordle(wordle);
@@ -191,7 +191,12 @@ export default function CustomWordles() {
                           Edit
                         </Button>
                       )}
-                    {/* TODO add leaderboard */}
+                    <a
+                      href={`/leaderboard/custom/${wordle._id}`}
+                      className="btn btn-secondary me-2"
+                    >
+                      Leaderboard
+                    </a>
                     <a
                       href={`/wordle/custom/${wordle._id}`}
                       className="btn btn-primary"

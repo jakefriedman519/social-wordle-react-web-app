@@ -11,7 +11,9 @@ import Leaderboard from "./Leaderboard";
 import Tournaments from "./Tournaments";
 import CustomWordles from "./Worldes/CustomWordles";
 import CustomWordleGame from "./Worldes/CustomWordles/CustomWordleGame";
+import CustomWordleLeaderboard from "./Leaderboard/CustomWordleLeaderboard";
 
+// TODO add navigation throughout the pages ie back btns etc
 export default function App() {
   return (
     <BrowserRouter>
@@ -57,6 +59,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <Leaderboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leaderboard/custom/:wordleId"
+                element={
+                  <ProtectedRoute>
+                    <CustomWordleLeaderboard />
                   </ProtectedRoute>
                 }
               />

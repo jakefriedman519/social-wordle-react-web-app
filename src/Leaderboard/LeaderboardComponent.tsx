@@ -6,14 +6,16 @@ import LeaderboardScoreCard from "./LeaderboardScoreCard";
 import DatePickerModal from "../shared/components/DatePickerModal";
 import { WordleGuess } from ".";
 
-export default function DailyLeaderboardComponent({
+export default function LeaderboardComponent({
   leaderboard,
   onDateChange,
   allowDateChange,
+  title
 }: {
   leaderboard: WordleGuess[];
   onDateChange: (date: string) => void;
   allowDateChange: boolean;
+  title?: string;
 }) {
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
@@ -48,7 +50,9 @@ export default function DailyLeaderboardComponent({
     <Card>
       <Card.Header className="d-flex justify-content-between align-items-center">
         <h5 className="mb-0">
-          {selectedDate === new Date().toISOString().split("T")[0]
+          {title
+            ? title
+            : selectedDate === new Date().toISOString().split("T")[0]
             ? "Today's"
             : selectedDate}
           &nbsp;Results

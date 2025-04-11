@@ -46,6 +46,8 @@ export default function CustomWordleGame() {
     setCurrentGuess(
       response?.guesses ? response.guesses[response.guesses.length - 1] : ""
     );
+    setGameOver(response?.completed ?? false);
+    setTimeSpent(response?.timeSpent ?? 0);
   };
 
   const handleGuess = async () => {
