@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "./reducer";
 import * as client from "./client";
@@ -50,6 +50,7 @@ interface Stats {
 
 export default function ProfilePage() {
   // TODO take in uid from url, use uid to fetch user data
+  const { uid } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useSelector(
@@ -69,7 +70,7 @@ export default function ProfilePage() {
     tournaments: true,
     stats: true,
   });
-  const [errors, setErrors] = useState<{[type: string]: string}>({});
+  const [errors, setErrors] = useState<{ [type: string]: string }>({});
   const [activeTab, setActiveTab] = useState<keyof typeof loading>("stats");
 
   const handleSignOut = async () => {
@@ -89,7 +90,9 @@ export default function ProfilePage() {
 
     const fetchUserWordles = async () => {
       try {
-        const response = await client.getUserWordleGuesses(currentUser?._id || "");
+        const response = await client.getUserWordleGuesses(
+          currentUser?._id || ""
+        );
         setPastWordles(response);
         setLoading((prev) => ({ ...prev, pastWordles: false }));
       } catch {
@@ -102,7 +105,9 @@ export default function ProfilePage() {
 
     const fetchTournaments = async () => {
       try {
-        const response = await client.getUserTournaments(currentUser?._id || "")
+        const response = await client.getUserTournaments(
+          currentUser?._id || ""
+        );
         setTournaments(response);
         setLoading((prev) => ({ ...prev, tournaments: false }));
       } catch {
@@ -126,10 +131,9 @@ export default function ProfilePage() {
       }
     };
 
-    // TODO make these endpoints work
     // TODO track last activity and total activity
     fetchUserWordles();
-    fetchTournaments();
+    fetchTournaments(); // TODO make this endpoints work
     fetchStats();
   }, [currentUser]);
 
@@ -283,13 +287,25 @@ export default function ProfilePage() {
                       </h6>
                       <small className="text-muted">
                         {wordle?.createdDate
-                          ? new Date(wordle.createdDate).toISOString().split("T")[0]
+                          ? new Date(wordle.createdDate)
+                              .toISOString()
+                              .split("T")[0]
                           : "Custom Wordle"}{" "}
                         • {wordle.completed ? "Completed" : "Not Completed"}
                       </small>
                     </div>
                     <div>
-                      <a href={wordle?.createdDate ? `/wordle/${new Date(wordle.createdDate).toISOString().split("T")[0]}` : `/wordle/custom/${wordle.wordleId}`}>
+                      <a
+                        href={
+                          wordle?.createdDate
+                            ? `/wordle/${
+                                new Date(wordle.createdDate)
+                                  .toISOString()
+                                  .split("T")[0]
+                              }`
+                            : `/wordle/custom/${wordle.wordleId}`
+                        }
+                      >
                         <Button variant="outline-primary" size="sm">
                           Play Again
                         </Button>
@@ -360,11 +376,7 @@ export default function ProfilePage() {
     <Container className="mt-5">
       <h1 className="mb-4 fw-bold">Profile</h1>
       {Object.values(errors).map((error, index) => (
-        <Alert
-          key={index}
-          variant="danger"
-          dismissible
-        >
+        <Alert key={index} variant="danger" dismissible>
           {error}
         </Alert>
       ))}
@@ -377,8 +389,9 @@ export default function ProfilePage() {
           <Alert.Heading>Profile Link Ready to Share!</Alert.Heading>
           <p>
             Your profile link has been copied to clipboard:{" "}
-            {/* TODO replace with link */}
-            <strong>Replace with link</strong>
+            <strong>
+              {window.location.origin.toString()}/profile/{user?._id}
+            </strong>
           </p>
           <p>Share this link with friends to show them your wordle stats!</p>
         </Alert>
@@ -396,6 +409,20 @@ export default function ProfilePage() {
                   <p className="text-muted">@{user?.username}</p>
                 </div>
                 <div>
+                  <Button
+                    variant="outline-secondary"
+                    className="me-2"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${window.location.origin.toString()}/profile/${
+                          user?._id
+                        }`
+                      );
+                      setShowShareAlert(true);
+                    }}
+                  >
+                    Share Profile
+                  </Button>
                   <Button
                     variant="danger"
                     className="me-2"
