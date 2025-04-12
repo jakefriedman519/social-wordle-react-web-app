@@ -121,7 +121,7 @@ export default function ProfilePage() {
     }
   };
 
-  const isUserProfileCurrentUser = () => currentUser && uid === currentUser._id;
+  const isUserProfileCurrentUser = () => !uid || (currentUser && uid === currentUser._id);
 
   useEffect(() => {
     if (!currentUser) {
