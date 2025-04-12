@@ -21,6 +21,7 @@ import {
 
 interface Wordle {
   _id: string;
+  wordleId: string;
   guesses: string[];
   completed: boolean;
   createdDate?: Date;
@@ -126,6 +127,7 @@ export default function ProfilePage() {
     };
 
     // TODO make these endpoints work
+    // TODO track last activity and total activity
     fetchUserWordles();
     fetchTournaments();
     fetchStats();
@@ -281,13 +283,13 @@ export default function ProfilePage() {
                       </h6>
                       <small className="text-muted">
                         {wordle?.createdDate
-                          ? new Date(wordle.createdDate).toLocaleDateString()
+                          ? new Date(wordle.createdDate).toISOString().split("T")[0]
                           : "Custom Wordle"}{" "}
                         • {wordle.completed ? "Completed" : "Not Completed"}
                       </small>
                     </div>
                     <div>
-                      <a href={`/wordle/${wordle._id}`}>
+                      <a href={wordle?.createdDate ? `/wordle/${new Date(wordle.createdDate).toISOString().split("T")[0]}` : `/wordle/custom/${wordle.wordleId}`}>
                         <Button variant="outline-primary" size="sm">
                           Play Again
                         </Button>
