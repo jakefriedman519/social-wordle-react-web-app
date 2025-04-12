@@ -19,15 +19,11 @@ import {
   Alert,
 } from "react-bootstrap";
 
-// Wordle type for past and created wordles
 interface Wordle {
   _id: string;
-  uuid: string;
-  createdBy: string;
-  word: string;
-  dateCreated: Date;
-  plays: number;
-  isPublic: boolean;
+  guesses: string[];
+  completed: boolean;
+  createdDate?: Date;
 }
 
 // Tournament type
@@ -61,19 +57,18 @@ export default function ProfilePage() {
 
   const [user, setUser] = useState<User>();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState<Partial<User>>();
+  const [editedUser, setEditedUser] = useState<User>();
   const [pastWordles, setPastWordles] = useState<Wordle[]>([]);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [stats, setStats] = useState<Stats>();
   const [showShareAlert, setShowShareAlert] = useState(false);
-  // TODO make loader for each section
   const [loading, setLoading] = useState({
     user: true,
     pastWordles: true,
     tournaments: true,
     stats: true,
   });
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<{[type: string]: string}>({});
   const [activeTab, setActiveTab] = useState<keyof typeof loading>("stats");
 
   const handleSignOut = async () => {
@@ -93,44 +88,44 @@ export default function ProfilePage() {
 
     const fetchUserWordles = async () => {
       try {
-        // const response = await client.getUserWordles(currentUser?._id || "");
-        // setPastWordles(response);
-        setPastWordles([]); // Placeholder for demo
+        const response = await client.getUserWordleGuesses(currentUser?._id || "");
+        setPastWordles(response);
         setLoading((prev) => ({ ...prev, pastWordles: false }));
       } catch {
-        setError("Error fetching past wordles");
+        setErrors((prev) => ({
+          ...prev,
+          pastWordles: "Error fetching past wordles",
+        }));
       }
     };
 
     const fetchTournaments = async () => {
       try {
-        // const response = await client.getUserTournaments(currentUser?._id || "")
-        // setTournaments(response);
-        setTournaments([]); // Placeholder for demo
+        const response = await client.getUserTournaments(currentUser?._id || "")
+        setTournaments(response);
         setLoading((prev) => ({ ...prev, tournaments: false }));
       } catch {
-        setError("Error fetching tournaments");
+        setErrors((prev) => ({
+          ...prev,
+          tournaments: "Error fetching tournaments",
+        }));
       }
     };
 
     const fetchStats = async () => {
       try {
-        // const response = await client.getUserStats(currentUser?._id || "");
-        // setStats(response);
-        setStats({
-          gamesPlayed: 10,
-          gamesWon: 8,
-          currentStreak: 5,
-          maxStreak: 7,
-          averageGuesses: 4.2,
-          distribution: [0, 1, 2, 3, 4, 10],
-        }); // Placeholder for demo
+        const response = await client.getUserStats(currentUser?._id || "");
+        setStats(response);
         setLoading((prev) => ({ ...prev, stats: false }));
       } catch {
-        setError("Error fetching stats");
+        setErrors((prev) => ({
+          ...prev,
+          stats: "Error fetching stats",
+        }));
       }
     };
 
+    // TODO make these endpoints work
     fetchUserWordles();
     fetchTournaments();
     fetchStats();
@@ -146,17 +141,19 @@ export default function ProfilePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditedUser({
-      ...editedUser,
+    setEditedUser((prev) => ({
+      ...prev!,
       [name]: value,
-    });
+    }));
   };
 
   const handleSaveProfile = async () => {
     try {
       setLoading((prev) => ({ ...prev, user: true }));
-      // const response = await client.updateUserProfile(editedUser);
-      const response = editedUser; // Placeholder for demo
+      if (!editedUser) {
+        throw new Error("Edited user is undefined");
+      }
+      const response = await client.updateUserProfile(editedUser);
       if (response) {
         setUser((prev) => ({
           ...prev!,
@@ -168,7 +165,10 @@ export default function ProfilePage() {
         dispatch(setCurrentUser(response));
       }
     } catch {
-      setError("Error updating profile");
+      setErrors((prev) => ({
+        ...prev,
+        user: "Error updating profile",
+      }));
       setIsEditing(false);
       setLoading((prev) => ({ ...prev, user: false }));
     }
@@ -274,14 +274,20 @@ export default function ProfilePage() {
                     className="d-flex justify-content-between align-items-center"
                   >
                     <div>
-                      <h6 className="mb-0">{wordle.word}</h6>
+                      <h6 className="mb-0">
+                        {wordle.completed
+                          ? wordle.guesses[wordle.guesses.length - 1]
+                          : "??????"}
+                      </h6>
                       <small className="text-muted">
-                        <span className="me-1">📅</span>
-                        {new Date(wordle.dateCreated).toLocaleDateString()}
+                        {wordle?.createdDate
+                          ? new Date(wordle.createdDate).toLocaleDateString()
+                          : "Custom Wordle"}{" "}
+                        • {wordle.completed ? "Completed" : "Not Completed"}
                       </small>
                     </div>
                     <div>
-                      <a href={`/wordle/${wordle.uuid}`}>
+                      <a href={`/wordle/${wordle._id}`}>
                         <Button variant="outline-primary" size="sm">
                           Play Again
                         </Button>
@@ -349,12 +355,17 @@ export default function ProfilePage() {
   };
 
   return (
-    <Container className="py-4">
-      {error && (
-        <Alert variant="danger" onClose={() => setError("")} dismissible>
+    <Container className="mt-5">
+      <h1 className="mb-4 fw-bold">Profile</h1>
+      {Object.values(errors).map((error, index) => (
+        <Alert
+          key={index}
+          variant="danger"
+          dismissible
+        >
           {error}
         </Alert>
-      )}
+      ))}
       {showShareAlert && (
         <Alert
           variant="success"
@@ -441,7 +452,9 @@ export default function ProfilePage() {
                       name="dob"
                       value={
                         editedUser?.dob
-                          ? new Date(editedUser?.dob).toISOString().split("T")[0]
+                          ? new Date(editedUser?.dob)
+                              .toISOString()
+                              .split("T")[0]
                           : ""
                       }
                       onChange={handleInputChange}

@@ -11,29 +11,25 @@ export default function Account() {
     (state: RootState) => state.accountReducer
   );
 
-  // TODO have a my wordles page, see past wordles and stats, see past tournaments, also have a place to create wordles and see created wordles ..
-  // allow users to send the link (with uuid of created wordle) to other users to play the wordle, use same uuid to see leaderboard of the wordle
   return (
     <>
-      <div className="container mt-5">
-        <Routes>
-          <Route
-            path="/"
-            element={<Navigate to={currentUser ? "/profile" : "/sign-in"} />}
-          />
-          <Route path="/sign-in" element={<Signin />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route
-            path="/profile/:uid"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/sign-up" element={<Signup />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route
+          path="/"
+          element={<Navigate to={currentUser ? "/profile" : "/sign-in"} />}
+        />
+        <Route path="/sign-in" element={<Signin />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/profile/:uid"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/sign-up" element={<Signup />} />
+      </Routes>
     </>
   );
 }

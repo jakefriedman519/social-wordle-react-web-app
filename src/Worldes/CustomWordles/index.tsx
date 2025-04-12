@@ -167,8 +167,10 @@ export default function CustomWordles() {
           {wordles.map((wordle) => (
             <div key={wordle._id} className="mb-3">
               <Card>
+                <Card.Header>
+                  <strong>{wordle.title}</strong>
+                </Card.Header>
                 <Card.Body>
-                  <Card.Title>{wordle.title}</Card.Title>
                   <Card.Text>
                     <strong>Created By:</strong> {wordle.userId?.username}{" "}
                     <br />
