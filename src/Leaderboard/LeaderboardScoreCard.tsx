@@ -1,5 +1,6 @@
 import { BsTrophy } from "react-icons/bs";
 import { WordleGuess } from ".";
+import { useNavigate } from "react-router-dom";
 
 export default function LeaderboardScoreCard({
   rank,
@@ -8,6 +9,8 @@ export default function LeaderboardScoreCard({
   rank: number;
   entry: WordleGuess;
 }) {
+  const navigate = useNavigate();
+
   const bgClassMap: { [key: number]: string } = {
     1: "bg-warning bg-opacity-10 border-warning",
     2: "bg-light border-secondary",
@@ -27,6 +30,8 @@ export default function LeaderboardScoreCard({
   return (
     <div
       className={`d-flex align-items-center p-3 rounded border mb-2 ${getBgClass()}`}
+      style={{ cursor: 'pointer' }}
+      onClick={() => {navigate(`/profile/${entry.userId._id}`)}}
     >
       <div className="d-flex justify-content-center" style={{ width: "32px" }}>
         {rank <= 3 ? (

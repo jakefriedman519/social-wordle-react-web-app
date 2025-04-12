@@ -49,7 +49,6 @@ interface Stats {
 }
 
 export default function ProfilePage() {
-  // TODO take in uid from url, use uid to fetch user data
   const { uid } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -78,64 +77,6 @@ export default function ProfilePage() {
     dispatch(setCurrentUser(null));
     navigate("/sign-in");
   };
-
-  useEffect(() => {
-    if (!currentUser) {
-      navigate("/sign-in");
-    } else {
-      setUser(currentUser);
-      setEditedUser(currentUser);
-      setLoading((prev) => ({ ...prev, user: false }));
-    }
-
-    const fetchUserWordles = async () => {
-      try {
-        const response = await client.getUserWordleGuesses(
-          currentUser?._id || ""
-        );
-        setPastWordles(response);
-        setLoading((prev) => ({ ...prev, pastWordles: false }));
-      } catch {
-        setErrors((prev) => ({
-          ...prev,
-          pastWordles: "Error fetching past wordles",
-        }));
-      }
-    };
-
-    const fetchTournaments = async () => {
-      try {
-        const response = await client.getUserTournaments(
-          currentUser?._id || ""
-        );
-        setTournaments(response);
-        setLoading((prev) => ({ ...prev, tournaments: false }));
-      } catch {
-        setErrors((prev) => ({
-          ...prev,
-          tournaments: "Error fetching tournaments",
-        }));
-      }
-    };
-
-    const fetchStats = async () => {
-      try {
-        const response = await client.getUserStats(currentUser?._id || "");
-        setStats(response);
-        setLoading((prev) => ({ ...prev, stats: false }));
-      } catch {
-        setErrors((prev) => ({
-          ...prev,
-          stats: "Error fetching stats",
-        }));
-      }
-    };
-
-    // TODO track last activity and total activity
-    fetchUserWordles();
-    fetchTournaments(); // TODO make this endpoints work
-    fetchStats();
-  }, [currentUser]);
 
   const handleEditToggle = () => {
     if (isEditing) {
@@ -179,6 +120,86 @@ export default function ProfilePage() {
       setLoading((prev) => ({ ...prev, user: false }));
     }
   };
+
+  const isUserProfileCurrentUser = () => currentUser && uid === currentUser._id;
+
+  useEffect(() => {
+    if (!currentUser) {
+      navigate("/sign-in");
+    } else {
+      if (uid) {
+        // Fetch user data based on uid
+        const fetchUser = async () => {
+          try {
+            const response = await client.getUserProfile(uid);
+            console.log("Fetched user profile:", response);
+            setUser(response);
+            setLoading((prev) => ({ ...prev, user: false }));
+          } catch {
+            setErrors((prev) => ({
+              ...prev,
+              user: "Error fetching user profile",
+            }));
+          }
+        };
+        fetchUser();
+      } else {
+        setUser(currentUser);
+        setEditedUser(currentUser);
+        setLoading((prev) => ({ ...prev, user: false }));
+      }
+    }
+
+    const fetchUserWordles = async () => {
+      try {
+        const response = await client.getUserWordleGuesses(
+          uid || currentUser?._id || ""
+        );
+        setPastWordles(response);
+        setLoading((prev) => ({ ...prev, pastWordles: false }));
+      } catch {
+        setErrors((prev) => ({
+          ...prev,
+          pastWordles: "Error fetching past wordles",
+        }));
+      }
+    };
+
+    const fetchTournaments = async () => {
+      try {
+        const response = await client.getUserTournaments(
+          uid || currentUser?._id || ""
+        );
+        setTournaments(response);
+        setLoading((prev) => ({ ...prev, tournaments: false }));
+      } catch {
+        setErrors((prev) => ({
+          ...prev,
+          tournaments: "Error fetching tournaments",
+        }));
+      }
+    };
+
+    const fetchStats = async () => {
+      try {
+        const response = await client.getUserStats(
+          uid || currentUser?._id || ""
+        );
+        setStats(response);
+        setLoading((prev) => ({ ...prev, stats: false }));
+      } catch {
+        setErrors((prev) => ({
+          ...prev,
+          stats: "Error fetching stats",
+        }));
+      }
+    };
+
+    // TODO track last activity and total activity
+    fetchUserWordles();
+    fetchTournaments(); // TODO make this endpoints work
+    fetchStats();
+  }, [currentUser, uid]);
 
   // Render tab content based on active tab
   const renderTabContent = () => {
@@ -270,7 +291,7 @@ export default function ProfilePage() {
         return (
           <Card>
             <Card.Header>
-              <h5 className="mb-0">Wordles You've Played</h5>
+              <h5 className="mb-0">Wordles Played</h5>
             </Card.Header>
             <ListGroup variant="flush">
               {pastWordles.length > 0 ? (
@@ -314,9 +335,7 @@ export default function ProfilePage() {
                   </ListGroup.Item>
                 ))
               ) : (
-                <ListGroup.Item>
-                  You haven't played any wordles yet.
-                </ListGroup.Item>
+                <ListGroup.Item>No wordles played yet.</ListGroup.Item>
               )}
             </ListGroup>
           </Card>
@@ -325,7 +344,7 @@ export default function ProfilePage() {
         return (
           <Card>
             <Card.Header>
-              <h5 className="mb-0">Your Tournament History</h5>
+              <h5 className="mb-0">Tournament History</h5>
             </Card.Header>
             <ListGroup variant="flush">
               {tournaments.length > 0 ? (
@@ -361,7 +380,7 @@ export default function ProfilePage() {
                 ))
               ) : (
                 <ListGroup.Item>
-                  You haven't participated in any tournaments yet.
+                  No tournaments participated in yet.
                 </ListGroup.Item>
               )}
             </ListGroup>
@@ -380,7 +399,7 @@ export default function ProfilePage() {
           {error}
         </Alert>
       ))}
-      {showShareAlert && (
+      {showShareAlert && isUserProfileCurrentUser() && (
         <Alert
           variant="success"
           onClose={() => setShowShareAlert(false)}
@@ -408,35 +427,37 @@ export default function ProfilePage() {
                   </h1>
                   <p className="text-muted">@{user?.username}</p>
                 </div>
-                <div>
-                  <Button
-                    variant="outline-secondary"
-                    className="me-2"
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `${window.location.origin.toString()}/profile/${
-                          user?._id
-                        }`
-                      );
-                      setShowShareAlert(true);
-                    }}
-                  >
-                    Share Profile
-                  </Button>
-                  <Button
-                    variant="danger"
-                    className="me-2"
-                    onClick={handleSignOut}
-                  >
-                    Sign Out
-                  </Button>
-                  <Button
-                    variant={isEditing ? "success" : "outline-primary"}
-                    onClick={handleEditToggle}
-                  >
-                    {isEditing ? "Save" : "Edit Profile"}
-                  </Button>
-                </div>
+                {isUserProfileCurrentUser() && (
+                  <div>
+                    <Button
+                      variant="outline-secondary"
+                      className="me-2"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `${window.location.origin.toString()}/profile/${
+                            user?._id
+                          }`
+                        );
+                        setShowShareAlert(true);
+                      }}
+                    >
+                      Share Profile
+                    </Button>
+                    <Button
+                      variant="danger"
+                      className="me-2"
+                      onClick={handleSignOut}
+                    >
+                      Sign Out
+                    </Button>
+                    <Button
+                      variant={isEditing ? "success" : "outline-primary"}
+                      onClick={handleEditToggle}
+                    >
+                      {isEditing ? "Save" : "Edit Profile"}
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {isEditing ? (
@@ -533,7 +554,7 @@ export default function ProfilePage() {
         onSelect={(k) => k && setActiveTab(k as keyof typeof loading)}
       >
         <Nav.Item>
-          <Nav.Link eventKey="stats">My Stats</Nav.Link>
+          <Nav.Link eventKey="stats">Stats</Nav.Link>
         </Nav.Item>
         <Nav.Item>
           <Nav.Link eventKey="pastWordles">Past Wordles</Nav.Link>

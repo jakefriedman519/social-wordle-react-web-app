@@ -25,6 +25,11 @@ export const profile = async () => {
   return response.data;
 };
 
+export const getUserProfile = async (uid: string) => {
+  const response = await axiosWithCredentials.get(`${USERS_API}/${uid}`);
+  return response.data;
+};
+
 export const signout = async () => {
   const response = await axiosWithCredentials.post(`${USERS_API}/sign-out`);
   return response.data;
