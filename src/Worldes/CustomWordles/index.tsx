@@ -8,14 +8,14 @@ import { useSelector } from "react-redux";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
-export interface User {
+interface UserId {
   _id: string;
   username: string;
 }
 
 export interface CustomWordle {
   _id: string;
-  userId: User;
+  userId: UserId;
   wordleWord: string;
   createdDate: Date;
   difficulty: Difficulty;
@@ -33,7 +33,7 @@ export default function CustomWordles() {
   const [search, setSearch] = useState<string>(""); // actual debounced search
   const [createdDate, setCreatedDate] = useState<string>("");
   const [selectedUserId, setSelectedUserId] = useState<string>("");
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserId[]>([]);
   const [showCreateWordleModal, setShowCreateWordleModal] =
     useState<boolean>(false);
 
@@ -95,7 +95,7 @@ export default function CustomWordles() {
 
   useEffect(() => {
     // Set users based on allWordles
-    const uniqueUsersMap = new Map<string, User>();
+    const uniqueUsersMap = new Map<string, UserId>();
     allWordles.forEach((wordle) => {
       if (wordle.userId && !uniqueUsersMap.has(wordle.userId._id)) {
         uniqueUsersMap.set(wordle.userId._id, wordle.userId);
