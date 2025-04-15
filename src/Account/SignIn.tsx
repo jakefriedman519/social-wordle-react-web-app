@@ -62,7 +62,11 @@ export default function Signin() {
       <Link id="signup-link" to="/sign-up">
         Sign up
       </Link>
-      <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 1 }}>
+      <ToastContainer
+        position="bottom-end"
+        className="p-3"
+        style={{ zIndex: 1 }}
+      >
         <Toast onClose={() => setShow(false)} show={show} delay={3000} autohide>
           <Toast.Header>{toastMessage}</Toast.Header>
         </Toast>

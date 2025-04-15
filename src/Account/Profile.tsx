@@ -25,6 +25,7 @@ interface Wordle {
   guesses: string[];
   completed: boolean;
   createdDate?: Date;
+  finishedDate?: Date;
 }
 
 // Tournament type
@@ -53,7 +54,7 @@ export default function ProfilePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
+    (state: RootState) => state.accountReducer,
   );
 
   const [user, setUser] = useState<User>();
@@ -121,7 +122,8 @@ export default function ProfilePage() {
     }
   };
 
-  const isUserProfileCurrentUser = () => !uid || (currentUser && uid === currentUser._id);
+  const isUserProfileCurrentUser = () =>
+    !uid || (currentUser && uid === currentUser._id);
 
   useEffect(() => {
     if (!currentUser) {
@@ -153,7 +155,7 @@ export default function ProfilePage() {
     const fetchUserWordles = async () => {
       try {
         const response = await client.getUserWordleGuesses(
-          uid || currentUser?._id || ""
+          uid || currentUser?._id || "",
         );
         setPastWordles(response);
         setLoading((prev) => ({ ...prev, pastWordles: false }));
@@ -168,7 +170,7 @@ export default function ProfilePage() {
     const fetchTournaments = async () => {
       try {
         const response = await client.getUserTournaments(
-          uid || currentUser?._id || ""
+          uid || currentUser?._id || "",
         );
         setTournaments(response);
         setLoading((prev) => ({ ...prev, tournaments: false }));
@@ -183,7 +185,7 @@ export default function ProfilePage() {
     const fetchStats = async () => {
       try {
         const response = await client.getUserStats(
-          uid || currentUser?._id || ""
+          uid || currentUser?._id || "",
         );
         setStats(response);
         setLoading((prev) => ({ ...prev, stats: false }));
@@ -226,7 +228,7 @@ export default function ProfilePage() {
                       <h2>
                         {stats
                           ? Math.round(
-                              (stats.gamesWon / stats.gamesPlayed) * 100
+                              (stats.gamesWon / stats.gamesPlayed) * 100,
                             )
                           : 0}
                         %
@@ -304,7 +306,7 @@ export default function ProfilePage() {
                       <h6 className="mb-0">
                         {wordle.completed
                           ? wordle.guesses[wordle.guesses.length - 1]
-                          : "??????"}
+                          : `Daily NYT Wordle`}
                       </h6>
                       <small className="text-muted">
                         {wordle?.createdDate
@@ -358,7 +360,7 @@ export default function ProfilePage() {
                       <small className="text-muted">
                         <span className="me-1">📅</span>
                         {new Date(
-                          tournament.startDate
+                          tournament.startDate,
                         ).toLocaleDateString()} -{" "}
                         {new Date(tournament.endDate).toLocaleDateString()}
                       </small>
@@ -436,7 +438,7 @@ export default function ProfilePage() {
                         navigator.clipboard.writeText(
                           `${window.location.origin.toString()}/profile/${
                             user?._id
-                          }`
+                          }`,
                         );
                         setShowShareAlert(true);
                       }}
