@@ -12,6 +12,8 @@ import Tournaments from "./Tournaments";
 import CustomWordles from "./Worldes/CustomWordles";
 import CustomWordleGame from "./Worldes/CustomWordles/CustomWordleGame";
 import CustomWordleLeaderboard from "./Leaderboard/CustomWordleLeaderboard";
+import CreateTournament from "./Tournaments/CreateTournament.tsx";
+import TournamentPage from "./Tournaments/TournamentPage.tsx";
 
 // TODO add navigation throughout the pages ie back btns etc
 export default function App() {
@@ -52,8 +54,24 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/tournaments/create"
+                element={
+                  <ProtectedRoute>
+                    <CreateTournament />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tournaments/:tournamentId"
+                element={
+                  <ProtectedRoute>
+                    <TournamentPage />
+                  </ProtectedRoute>
+                }
+              />
               {/* leaderboard */}
-              <Route path="/leaderboard/" element={<Leaderboard />} /> 
+              <Route path="/leaderboard/" element={<Leaderboard />} />
               <Route
                 path="/leaderboard/:day"
                 element={

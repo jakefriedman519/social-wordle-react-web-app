@@ -18,6 +18,7 @@ import {
   ListGroup,
   Alert,
 } from "react-bootstrap";
+import { formatDateUTC } from "../dateUtils.ts";
 
 interface Wordle {
   _id: string;
@@ -34,7 +35,8 @@ interface Tournament {
   name: string;
   startDate: Date;
   endDate: Date;
-  participants: number;
+  players: string[];
+  maxPlayers: number;
   rank?: number;
   score?: number;
 }
@@ -126,30 +128,30 @@ export default function ProfilePage() {
     !uid || (currentUser && uid === currentUser._id);
 
   useEffect(() => {
-    if (!currentUser) {
+    if (!uid && !currentUser) {
       navigate("/sign-in");
-    } else {
-      if (uid) {
-        // Fetch user data based on uid
-        const fetchUser = async () => {
-          try {
-            const response = await client.getUserProfile(uid);
-            console.log("Fetched user profile:", response);
-            setUser(response);
-            setLoading((prev) => ({ ...prev, user: false }));
-          } catch {
-            setErrors((prev) => ({
-              ...prev,
-              user: "Error fetching user profile",
-            }));
-          }
-        };
-        fetchUser();
-      } else {
-        setUser(currentUser);
-        setEditedUser(currentUser);
-        setLoading((prev) => ({ ...prev, user: false }));
-      }
+    }
+    if (uid) {
+      // Fetch user data based on uid
+      const fetchUser = async () => {
+        try {
+          const response = await client.getUserProfile(uid);
+          console.log("Fetched user profile:", response);
+          setUser(response);
+          setLoading((prev) => ({ ...prev, user: false }));
+        } catch {
+          setErrors((prev) => ({
+            ...prev,
+            user: "Error fetching user profile",
+          }));
+        }
+      };
+      fetchUser();
+    }
+    if (currentUser) {
+      setUser(currentUser);
+      setEditedUser(currentUser);
+      setLoading((prev) => ({ ...prev, user: false }));
     }
 
     const fetchUserWordles = async () => {
@@ -318,21 +320,23 @@ export default function ProfilePage() {
                       </small>
                     </div>
                     <div>
-                      <a
-                        href={
-                          wordle?.createdDate
-                            ? `/wordle/${
-                                new Date(wordle.createdDate)
-                                  .toISOString()
-                                  .split("T")[0]
-                              }`
-                            : `/wordle/custom/${wordle.wordleId}`
+                      <Button
+                        onClick={() =>
+                          navigate(
+                            wordle?.createdDate
+                              ? `/wordle/${
+                                  new Date(wordle.createdDate)
+                                    .toISOString()
+                                    .split("T")[0]
+                                }`
+                              : `/wordle/custom/${wordle.wordleId}`,
+                          )
                         }
+                        variant="outline-primary"
+                        size="sm"
                       >
-                        <Button variant="outline-primary" size="sm">
-                          Play Again
-                        </Button>
-                      </a>
+                        View Details
+                      </Button>
                     </div>
                   </ListGroup.Item>
                 ))
@@ -359,15 +363,14 @@ export default function ProfilePage() {
                       <h6 className="mb-0">{tournament.name}</h6>
                       <small className="text-muted">
                         <span className="me-1">📅</span>
-                        {new Date(
-                          tournament.startDate,
-                        ).toLocaleDateString()} -{" "}
-                        {new Date(tournament.endDate).toLocaleDateString()}
+                        {formatDateUTC(new Date(tournament.startDate))} -{" "}
+                        {formatDateUTC(new Date(tournament.endDate))}
                       </small>
                     </div>
                     <div className="text-end">
                       <Badge bg="primary" className="me-2">
-                        {tournament.participants} Participants
+                        {tournament.players.length}/{tournament.maxPlayers}{" "}
+                        Participants
                       </Badge>
                       {tournament.rank && (
                         <Badge
@@ -377,6 +380,15 @@ export default function ProfilePage() {
                           Rank: {tournament.rank}
                         </Badge>
                       )}
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={() =>
+                          navigate(`/tournaments/${tournament._id}`)
+                        }
+                      >
+                        View Tournament
+                      </Button>
                     </div>
                   </ListGroup.Item>
                 ))
@@ -462,87 +474,88 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              {isEditing ? (
-                <Form>
+              {currentUser &&
+                (isEditing ? (
+                  <Form>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>First Name</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="firstName"
+                            value={editedUser?.firstName || ""}
+                            onChange={handleInputChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Last Name</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="lastName"
+                            value={editedUser?.lastName || ""}
+                            onChange={handleInputChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Email</Form.Label>
+                      <Form.Control
+                        type="email"
+                        name="email"
+                        value={editedUser?.email || ""}
+                        onChange={handleInputChange}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Date of Birth</Form.Label>
+                      <Form.Control
+                        type="date"
+                        name="dob"
+                        value={
+                          editedUser?.dob
+                            ? new Date(editedUser?.dob)
+                                .toISOString()
+                                .split("T")[0]
+                            : ""
+                        }
+                        onChange={handleInputChange}
+                      />
+                    </Form.Group>
+                  </Form>
+                ) : (
                   <Row>
                     <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>First Name</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="firstName"
-                          value={editedUser?.firstName || ""}
-                          onChange={handleInputChange}
-                        />
-                      </Form.Group>
+                      <p>
+                        <strong>Email:</strong> {user?.email}
+                      </p>
+                      <p>
+                        <strong>Date of Birth:</strong>{" "}
+                        {user?.dob
+                          ? `${new Date(user.dob).getUTCMonth() + 1}/${new Date(user.dob).getUTCDate()}/${new Date(user.dob).getUTCFullYear()}`
+                          : "Not set"}
+                      </p>
+                      <p>
+                        <strong>Role:</strong> {user?.role}
+                      </p>
                     </Col>
                     <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Last Name</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="lastName"
-                          value={editedUser?.lastName || ""}
-                          onChange={handleInputChange}
-                        />
-                      </Form.Group>
+                      <p>
+                        <strong>Last Activity:</strong>{" "}
+                        {user?.lastActivity
+                          ? new Date(user.lastActivity).toLocaleString()
+                          : "Unknown"}
+                      </p>
+                      <p>
+                        <strong>Total Activity:</strong>{" "}
+                        {user?.totalActivity || "0h"}
+                      </p>
                     </Col>
                   </Row>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      type="email"
-                      name="email"
-                      value={editedUser?.email || ""}
-                      onChange={handleInputChange}
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Date of Birth</Form.Label>
-                    <Form.Control
-                      type="date"
-                      name="dob"
-                      value={
-                        editedUser?.dob
-                          ? new Date(editedUser?.dob)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
-                      onChange={handleInputChange}
-                    />
-                  </Form.Group>
-                </Form>
-              ) : (
-                <Row>
-                  <Col md={6}>
-                    <p>
-                      <strong>Email:</strong> {user?.email}
-                    </p>
-                    <p>
-                      <strong>Date of Birth:</strong>{" "}
-                      {user?.dob
-                        ? `${new Date(user.dob).getUTCMonth() + 1}/${new Date(user.dob).getUTCDate()}/${new Date(user.dob).getUTCFullYear()}`
-                        : "Not set"}
-                    </p>
-                    <p>
-                      <strong>Role:</strong> {user?.role}
-                    </p>
-                  </Col>
-                  <Col md={6}>
-                    <p>
-                      <strong>Last Activity:</strong>{" "}
-                      {user?.lastActivity
-                        ? new Date(user.lastActivity).toLocaleString()
-                        : "Unknown"}
-                    </p>
-                    <p>
-                      <strong>Total Activity:</strong>{" "}
-                      {user?.totalActivity || "0h"}
-                    </p>
-                  </Col>
-                </Row>
-              )}
+                ))}
             </Card.Body>
           </Card>
         </Col>
@@ -558,12 +571,16 @@ export default function ProfilePage() {
         <Nav.Item>
           <Nav.Link eventKey="stats">Stats</Nav.Link>
         </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="pastWordles">Past Wordles</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="tournaments">Tournaments</Nav.Link>
-        </Nav.Item>
+        {currentUser === user && (
+          <Nav.Item>
+            <Nav.Link eventKey="pastWordles">Past Wordles</Nav.Link>
+          </Nav.Item>
+        )}
+        {currentUser === user && (
+          <Nav.Item>
+            <Nav.Link eventKey="tournaments">Tournaments</Nav.Link>
+          </Nav.Item>
+        )}
       </Nav>
 
       {/* Render content based on active tab */}

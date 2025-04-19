@@ -8,14 +8,14 @@ const axiosWithCredentials = axios.create({ withCredentials: true });
 
 export const getWordleByDay = async (day: string) => {
   const response = await axiosWithCredentials.get(
-    `${WORDLES_EXTERNAL_API}/${day}`
+    `${WORDLES_EXTERNAL_API}/${day}`,
   );
   return response.data;
 };
 
 export const getUserWordleGuessesByDate = async (date: string) => {
   const response = await axiosWithCredentials.get(
-    `${WORDLE_GUESSES_API}/user/date/${date}`
+    `${WORDLE_GUESSES_API}/user/date/${date}`,
   );
   return response.data;
 };
@@ -25,30 +25,33 @@ export const updateUserWordleGuessByDate = async ({
   guesses,
   completed,
   timeSpent,
+  finishedDate,
 }: {
   createdDate: string;
   guesses: string[];
   completed: boolean;
   timeSpent: number;
+  finishedDate: string | undefined;
 }) => {
   await axiosWithCredentials.patch(`${WORDLE_GUESSES_API}`, {
     createdDate,
     guesses,
     completed,
     timeSpent,
+    finishedDate,
   });
 };
 
 export const getWordleGuessesByDay = async (day: string) => {
   const response = await axiosWithCredentials.get(
-    `${WORDLE_GUESSES_API}/date/${day}`
+    `${WORDLE_GUESSES_API}/date/${day}`,
   );
   return response.data;
 };
 
 export const getWordleGuessesByWorldeId = async (wordleId: string) => {
   const response = await axiosWithCredentials.get(
-    `${WORDLE_GUESSES_API}/wordleId/${wordleId}`
+    `${WORDLE_GUESSES_API}/wordleId/${wordleId}`,
   );
   return response.data;
 };
@@ -58,7 +61,7 @@ export const getAllCustomWordles = async (query = {}) => {
     .map(([key, value]) => `${key}=${value}`)
     .join("&");
   const response = await axiosWithCredentials.get(
-    `${WORDLES_API}${queryString ? `?${queryString}` : ""}`
+    `${WORDLES_API}${queryString ? `?${queryString}` : ""}`,
   );
   return response.data;
 };
@@ -70,7 +73,7 @@ export const getWordleByWordleId = async (wordleId: string) => {
 
 export const getUserWordleGuessesByWordleId = async (wordleId: string) => {
   const response = await axiosWithCredentials.get(
-    `${WORDLE_GUESSES_API}/user/wordleId/${wordleId}`
+    `${WORDLE_GUESSES_API}/user/wordleId/${wordleId}`,
   );
   return response.data;
 };
@@ -102,11 +105,11 @@ export const createCustomWordle = async (wordle: Wordle) => {
 export const updateCustomWordle = async (wordle: Wordle) => {
   const response = await axiosWithCredentials.patch(
     `${WORDLES_API}/${wordle._id}`,
-    wordle
+    wordle,
   );
   return response.data;
 };
 
 export const deleteCustomWordle = async (wordleId: string) => {
   await axiosWithCredentials.delete(`${WORDLES_API}/${wordleId}`);
-}
+};
