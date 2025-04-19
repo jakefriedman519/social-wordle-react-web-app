@@ -5,26 +5,29 @@ import { Card, Button, Row, Col } from "react-bootstrap";
 import LeaderboardScoreCard from "./LeaderboardScoreCard";
 import DatePickerModal from "../shared/components/DatePickerModal";
 import { WordleGuess } from ".";
+import { formatDate } from "../dateUtils.ts";
 
 export default function LeaderboardComponent({
   leaderboard,
   onDateChange,
   allowDateChange,
-  title
+  title,
+  day,
 }: {
   leaderboard: WordleGuess[];
   onDateChange: (date: string) => void;
   allowDateChange: boolean;
   title?: string;
+  day?: string;
 }) {
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    day || formatDate(new Date()),
   );
   const [isDatePickerOpen, setIsDatePickerOpen] = useState<boolean>(false);
 
   const handleDateChange = (date: Date) => {
     if (date) {
-      const dateString = date.toISOString().split("T")[0];
+      const dateString = formatDate(date);
       setSelectedDate(dateString);
       setIsDatePickerOpen(false);
     }
@@ -32,13 +35,13 @@ export default function LeaderboardComponent({
 
   const goToPreviousDay = () => {
     const prevDay = new Date(selectedDate);
-    prevDay.setDate(prevDay.getDate() - 1);
+    prevDay.setDate(prevDay.getDate());
     handleDateChange(prevDay);
   };
 
   const goToNextDay = () => {
     const nextDay = new Date(selectedDate);
-    nextDay.setDate(nextDay.getDate() + 1);
+    nextDay.setDate(nextDay.getDate() + 2);
     handleDateChange(nextDay);
   };
 
@@ -52,9 +55,9 @@ export default function LeaderboardComponent({
         <h5 className="mb-0">
           {title
             ? title
-            : selectedDate === new Date().toISOString().split("T")[0]
-            ? "Today's"
-            : selectedDate}
+            : selectedDate === formatDate(new Date())
+              ? "Today's"
+              : selectedDate}
           &nbsp;Results
         </h5>
         {allowDateChange && (
@@ -80,7 +83,7 @@ export default function LeaderboardComponent({
               variant="outline-secondary"
               size="sm"
               onClick={goToNextDay}
-              disabled={selectedDate === new Date().toISOString().split("T")[0]}
+              disabled={selectedDate === formatDate(new Date())}
               aria-label="Next day"
             >
               <BsChevronRight style={{ fontSize: "16px" }} />

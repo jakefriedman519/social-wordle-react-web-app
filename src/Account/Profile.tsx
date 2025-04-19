@@ -522,7 +522,7 @@ export default function ProfilePage() {
                     <p>
                       <strong>Date of Birth:</strong>{" "}
                       {user?.dob
-                        ? new Date(user.dob).toLocaleDateString()
+                        ? `${new Date(user.dob).getUTCMonth() + 1}/${new Date(user.dob).getUTCDate()}/${new Date(user.dob).getUTCFullYear()}`
                         : "Not set"}
                     </p>
                     <p>

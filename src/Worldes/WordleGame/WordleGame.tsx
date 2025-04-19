@@ -80,12 +80,13 @@ export default function WordleGame({
         targetWord={targetWord}
         maxGuesses={maxGuesses}
       />
-
-      <Keyboard
-        onKeyPress={handleKeyPress}
-        guesses={guesses}
-        targetWord={targetWord}
-      />
+      {!gameOver && (
+        <Keyboard
+          onKeyPress={handleKeyPress}
+          guesses={guesses}
+          targetWord={targetWord}
+        />
+      )}
     </>
   );
 }

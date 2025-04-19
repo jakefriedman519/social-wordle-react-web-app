@@ -14,7 +14,7 @@ export function GuessGrid({
   const getLetterColor = (
     letter: string,
     index: number,
-    guessIndex: number
+    guessIndex: number,
   ) => {
     // If this isn't a completed guess row, return light background
     if (guessIndex >= guesses.length) return "bg-light";
@@ -55,7 +55,7 @@ export function GuessGrid({
     return "bg-secondary text-white";
   };
   return (
-    <div className="mb-4">
+    <div className="mb-2">
       {[...Array(maxGuesses)].map((_, rowIndex) => {
         // Determine if this is the current guess row
         const isCurrentGuessRow = rowIndex === guesses.length;
@@ -80,7 +80,7 @@ export function GuessGrid({
                   className={`border border-dark rounded me-2 ${getLetterColor(
                     letter,
                     colIndex,
-                    rowIndex
+                    rowIndex,
                   )} d-flex justify-content-center align-items-center`}
                   style={{ width: "3rem", height: "3rem" }}
                 >

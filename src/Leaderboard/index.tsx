@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import * as client from "../Worldes/client";
 
 import LeaderboardComponent from "./LeaderboardComponent";
+import { formatDate } from "../dateUtils.ts";
 
 export interface WordleGuess {
   _id: string;
@@ -30,7 +31,7 @@ export default function Leaderboard() {
   const fetchLeaderboard = async () => {
     try {
       const response = await client.getWordleGuessesByDay(
-        day || new Date().toISOString().split("T")[0]
+        day || formatDate(new Date()),
       );
       setLeaderboard({ leaderboard: response, isLoading: false });
     } catch {
@@ -39,9 +40,7 @@ export default function Leaderboard() {
   };
 
   const handleDateChange = (date: string) => {
-    if (date !== new Date().toISOString().split("T")[0]) {
-      navigate(`/leaderboard/${date}`);
-    }
+    navigate(`/leaderboard/${date}`);
   };
 
   useEffect(() => {
@@ -59,6 +58,7 @@ export default function Leaderboard() {
             leaderboard={leaderboard.leaderboard}
             onDateChange={handleDateChange}
             allowDateChange={true}
+            day={day}
           />
         </>
       )}

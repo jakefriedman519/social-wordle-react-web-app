@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button, Spinner, Toast, ToastContainer } from "react-bootstrap";
 import DatePickerModal from "../shared/components/DatePickerModal";
 import { BsChevronLeft, BsCalendar, BsChevronRight } from "react-icons/bs";
+import { formatDate } from "../dateUtils.ts";
 
 export default function Worldes() {
   const { day } = useParams<{ day?: string }>();
@@ -51,19 +52,26 @@ export default function Worldes() {
 
   const fetchUserWordleGuess = async () => {
     const response = await client.getUserWordleGuessesByDate(
-      day || new Date().toISOString().split("T")[0]
+      day || formatDate(new Date()),
     );
     setGuesses(response?.guesses ?? []);
     setCurrentGuess(
-      response?.guesses ? response.guesses[response.guesses.length - 1] : ""
+      response?.guesses ? response.guesses[response.guesses.length - 1] : "",
     );
     setTimeSpent(response?.timeSpent ?? 0);
-    setGameOver(response?.completed ?? false);
+    if (
+      (!response?.wordleId && day && day !== formatDate(new Date())) ||
+      response?.completed
+    ) {
+      setGameOver(true);
+    } else {
+      setGameOver(response?.completed ?? false);
+    }
   };
 
   const handleDateChange = (date: Date) => {
     setIsDatePickerOpen(false);
-    const dateString = date.toISOString().split("T")[0];
+    const dateString = formatDate(date);
     navigate(`/wordle/${dateString}`);
     setToast({
       show: false,
@@ -76,7 +84,7 @@ export default function Worldes() {
   const handleGuess = async () => {
     if (guesses.length) {
       await client.updateUserWordleGuessByDate({
-        createdDate: day || new Date().toISOString().split("T")[0],
+        createdDate: day || formatDate(new Date()),
         guesses,
         completed: guesses[guesses.length - 1] === targetWord,
         timeSpent,
@@ -97,7 +105,7 @@ export default function Worldes() {
 
   useEffect(() => {
     // If day is passed in the URL, use that to fetch the wordle NEEDS TO BE IN YYYY-MM-DD FORMAT, else use the current date
-    fetchWordleByDay(day || new Date().toISOString().split("T")[0]);
+    fetchWordleByDay(day || formatDate(new Date()));
     fetchUserWordleGuess();
   }, [day]);
 
@@ -121,102 +129,107 @@ export default function Worldes() {
           </Spinner>
         </div>
       ) : (
-        <>
-          <h1 className="display-4 fw-bold my-5">
-            {day || new Date().toISOString().split("T")[0]}
-          </h1>
-          <WordleGame
-            targetWord={targetWord}
-            maxGuesses={maxGuesses}
-            guesses={guesses}
-            currentGuess={currentGuess}
-            gameOver={gameOver}
-            setGuesses={setGuesses}
-            setCurrentGuess={setCurrentGuess}
-            setGameOver={setGameOver}
-            handleGuess={handleGuess}
-            handleGameOver={handleGameOver}
-          />
+        <div className="d-flex flex-row w-75 h-75 justify-content-evenly align-items-start">
+          <div className="d-flex flex-column justify-content-start h-75 align-items-center">
+            <h1 className="display-6 fw-bold my-2">
+              {day || formatDate(new Date())}
+            </h1>
+            <WordleGame
+              targetWord={targetWord}
+              maxGuesses={maxGuesses}
+              guesses={guesses}
+              currentGuess={currentGuess}
+              gameOver={gameOver}
+              setGuesses={setGuesses}
+              setCurrentGuess={setCurrentGuess}
+              setGameOver={setGameOver}
+              handleGuess={handleGuess}
+              handleGameOver={handleGameOver}
+            />
 
-          {/* Date Navigation and Timer */}
-          <div className="d-flex flex-column align-items-center mb-4">
-            <div className="d-flex gap-2">
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() => {
-                  const previousDay = new Date(
-                    day || new Date().toISOString().split("T")[0]
-                  );
-                  previousDay.setDate(previousDay.getDate() - 1);
-                  handleDateChange(previousDay);
-                }}
-                aria-label="Previous day"
-              >
-                <BsChevronLeft style={{ fontSize: "16px" }} />
-              </Button>
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() => setIsDatePickerOpen(true)}
-                className="d-flex align-items-center gap-2"
-              >
-                <BsCalendar style={{ fontSize: "16px" }} />
-                <span className="d-none d-sm-inline">Change Date</span>
-              </Button>
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() => {
-                  const previousDay = new Date(
-                    day || new Date().toISOString().split("T")[0]
-                  );
-                  previousDay.setDate(previousDay.getDate() + 1);
-                  handleDateChange(previousDay);
-                }}
-                disabled={day === new Date().toISOString().split("T")[0]}
-                aria-label="Next day"
-              >
-                <BsChevronRight style={{ fontSize: "16px" }} />
-              </Button>
+            {/* Date Navigation and Timer */}
+            <div className="d-flex flex-column align-items-center mb-4">
+              <div className="d-flex gap-2">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={() => {
+                    const previousDay = new Date(day || formatDate(new Date()));
+                    // For some reason, getDate is zero-indexed, setDate is not
+                    previousDay.setDate(previousDay.getDate());
+                    handleDateChange(previousDay);
+                  }}
+                  aria-label="Previous day"
+                >
+                  <BsChevronLeft style={{ fontSize: "16px" }} />
+                </Button>
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={() => setIsDatePickerOpen(true)}
+                  className="d-flex align-items-center gap-2"
+                >
+                  <BsCalendar style={{ fontSize: "16px" }} />
+                  <span className="d-none d-sm-inline">Change Date</span>
+                </Button>
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={() => {
+                    const previousDay = new Date(day || formatDate(new Date()));
+                    // +2 because getDate is zero-indexed, setDate is not, so +1 just keeps the current date
+                    previousDay.setDate(previousDay.getDate() + 2);
+                    handleDateChange(previousDay);
+                  }}
+                  disabled={!day || day === formatDate(new Date())}
+                  aria-label="Next day"
+                >
+                  <BsChevronRight style={{ fontSize: "16px" }} />
+                </Button>
+              </div>
+
+              {/* Timer Display */}
+              <div className="fs-6 py-2 px-3">Time spent: {timeSpent}</div>
             </div>
 
-            {/* Timer Display */}
-            <div className="fs-6 py-2 px-3">Time spent: {timeSpent}</div>
-          </div>
+            {/* Date Picker */}
+            <DatePickerModal
+              isOpen={isDatePickerOpen}
+              onClose={() => setIsDatePickerOpen(false)}
+              onDateChange={handleDateChange}
+            />
 
-          {/* Date Picker */}
-          <DatePickerModal
-            isOpen={isDatePickerOpen}
-            onClose={() => setIsDatePickerOpen(false)}
-            onDateChange={handleDateChange}
-          />
-
-          {/* Toast Notification */}
-          <ToastContainer
-            position="bottom-end"
-            className="p-3"
-            style={{ zIndex: 1 }}
-          >
-            <Toast
-              onClose={() => setToast({ ...toast, show: false })}
-              show={toast.show}
+            {/* Toast Notification */}
+            <ToastContainer
+              position="bottom-end"
+              className="p-3"
+              style={{ zIndex: 1 }}
             >
-              <Toast.Header>{toast.toastHeader}</Toast.Header>
-              {toast.toastBody && (
-                <Toast.Body>
-                  {toast.toastBody}
-                  {toast.refreshLink && (
-                    <>
-                      <br />
-                      <a href="/wordle">Return to today</a>
-                    </>
-                  )}
-                </Toast.Body>
-              )}
-            </Toast>
-          </ToastContainer>
-        </>
+              <Toast
+                onClose={() => setToast({ ...toast, show: false })}
+                show={toast.show}
+              >
+                <Toast.Header>{toast.toastHeader}</Toast.Header>
+                {toast.toastBody && (
+                  <Toast.Body>
+                    {toast.toastBody}
+                    {toast.refreshLink && (
+                      <>
+                        <br />
+                        <a href="/wordle">Return to today</a>
+                      </>
+                    )}
+                  </Toast.Body>
+                )}
+              </Toast>
+            </ToastContainer>
+          </div>
+          {gameOver && (
+            <div>
+              <h1 className="my-2">"Details" Placeholder</h1>
+            </div>
+          )}
+        </div>
       )}
     </>
   );
