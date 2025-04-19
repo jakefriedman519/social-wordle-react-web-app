@@ -107,7 +107,6 @@ export default function Worldes() {
     // If day is passed in the URL, use that to fetch the wordle NEEDS TO BE IN YYYY-MM-DD FORMAT, else use the current date
     fetchWordleByDay(day || formatDate(new Date()));
     fetchUserWordleGuess(day || formatDate(new Date()));
-    console.log("re-fetching");
   }, [day]);
 
   // Initialize timer if game is not over
