@@ -123,7 +123,7 @@ async function WordInfo({ details }: { details?: WordDetails }) {
               {details.related.map((term, index) => (
                 <>
                   <Link
-                    to={`/details/${encodeURIComponent(term)}`}
+                    to={`https://en.wikipedia.org/wiki/${encodeURIComponent(term)}`}
                     key={index}
                     className="text-decoration-none"
                   >
