@@ -54,17 +54,10 @@ export default function Worldes() {
     const response = await client.getUserWordleGuessesByDate(day);
     setGuesses(response?.guesses ?? []);
     setCurrentGuess(
-      response?.guesses ? response.guesses[response.guesses.length - 1] : "",
+      response?.guesses ? response.guesses[response.guesses.length - 1] : ""
     );
     setTimeSpent(response?.timeSpent ?? 0);
-    if (
-      (!response?.wordleId && day && day !== formatDate(new Date())) ||
-      response?.completed
-    ) {
-      setGameOver(true);
-    } else {
-      setGameOver(response?.completed ?? false);
-    }
+    setGameOver(response?.completed ?? false);
   };
 
   const handleDateChange = (date: Date) => {
@@ -133,11 +126,15 @@ export default function Worldes() {
           <h1 className="display-6 fw-bold my-2">
             {day || formatDate(new Date())}
           </h1>
-          {gameOver && (
-            <Button variant="primary" className="mb-2">
-              Details Placeholder
-            </Button>
-          )}
+          <Button
+            variant="primary"
+            className="mb-2"
+            onClick={() =>
+              navigate(`/details/${day || formatDate(new Date())}?showDetails=${gameOver}`)
+            }
+          >
+            See Details
+          </Button>
           <WordleGame
             targetWord={targetWord}
             maxGuesses={maxGuesses}

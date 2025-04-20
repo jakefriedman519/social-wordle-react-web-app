@@ -136,7 +136,6 @@ export default function ProfilePage() {
       const fetchUser = async () => {
         try {
           const response = await client.getUserProfile(uid);
-          console.log("Fetched user profile:", response);
           setUser(response);
           setLoading((prev) => ({ ...prev, user: false }));
         } catch {

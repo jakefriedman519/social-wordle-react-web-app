@@ -11,6 +11,7 @@ import {
 import * as client from "./client";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 interface Tournament {
   _id: string;
@@ -26,7 +27,7 @@ export default function Tournaments() {
   const [errors, setErrors] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
   useEffect(() => {
     const fetchTournaments = async () => {
       try {
@@ -46,7 +47,7 @@ export default function Tournaments() {
     <Container className="mt-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Tournaments</h2>
-        {currentUser.role === "ADMIN" && (
+        {currentUser?.role === "ADMIN" && (
           <Button onClick={() => navigate("/tournaments/create")}>
             Create Tournament
           </Button>
