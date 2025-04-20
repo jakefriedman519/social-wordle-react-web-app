@@ -56,7 +56,7 @@ export default function ProfilePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer,
+    (state: RootState) => state.accountReducer
   );
 
   const [user, setUser] = useState<User>();
@@ -137,6 +137,7 @@ export default function ProfilePage() {
         try {
           const response = await client.getUserProfile(uid);
           setUser(response);
+          setEditedUser(response);
           setLoading((prev) => ({ ...prev, user: false }));
         } catch {
           setErrors((prev) => ({
@@ -146,8 +147,8 @@ export default function ProfilePage() {
         }
       };
       fetchUser();
-    }
-    if (currentUser) {
+    } else if (currentUser) {
+      // Only set user if uid is not provided
       setUser(currentUser);
       setEditedUser(currentUser);
       setLoading((prev) => ({ ...prev, user: false }));
@@ -156,7 +157,7 @@ export default function ProfilePage() {
     const fetchUserWordles = async () => {
       try {
         const response = await client.getUserWordleGuesses(
-          uid || currentUser?._id || "",
+          uid || currentUser?._id || ""
         );
         setPastWordles(response);
         setLoading((prev) => ({ ...prev, pastWordles: false }));
@@ -171,7 +172,7 @@ export default function ProfilePage() {
     const fetchTournaments = async () => {
       try {
         const response = await client.getUserTournaments(
-          uid || currentUser?._id || "",
+          uid || currentUser?._id || ""
         );
         setTournaments(response);
         setLoading((prev) => ({ ...prev, tournaments: false }));
@@ -186,7 +187,7 @@ export default function ProfilePage() {
     const fetchStats = async () => {
       try {
         const response = await client.getUserStats(
-          uid || currentUser?._id || "",
+          uid || currentUser?._id || ""
         );
         setStats(response);
         setLoading((prev) => ({ ...prev, stats: false }));
@@ -229,7 +230,7 @@ export default function ProfilePage() {
                       <h2>
                         {stats
                           ? Math.round(
-                              (stats.gamesWon / stats.gamesPlayed) * 100,
+                              (stats.gamesWon / stats.gamesPlayed) * 100
                             )
                           : 0}
                         %
@@ -328,7 +329,7 @@ export default function ProfilePage() {
                                     .toISOString()
                                     .split("T")[0]
                                 }`
-                              : `/wordle/custom/${wordle.wordleId}`,
+                              : `/wordle/custom/${wordle.wordleId}`
                           )
                         }
                         variant="outline-primary"
@@ -440,7 +441,8 @@ export default function ProfilePage() {
                   </h1>
                   <p className="text-muted">@{user?.username}</p>
                 </div>
-                {isUserProfileCurrentUser() && (
+                {(currentUser?.role === "ADMIN" ||
+                  isUserProfileCurrentUser()) && (
                   <div>
                     <Button
                       variant="outline-secondary"
@@ -449,7 +451,7 @@ export default function ProfilePage() {
                         navigator.clipboard.writeText(
                           `${window.location.origin.toString()}/profile/${
                             user?._id
-                          }`,
+                          }`
                         );
                         setShowShareAlert(true);
                       }}
@@ -524,17 +526,42 @@ export default function ProfilePage() {
                         onChange={handleInputChange}
                       />
                     </Form.Group>
+                    {currentUser?.role === "ADMIN" && (
+                      <Form.Group className="mb-3">
+                        <Form.Label>Role</Form.Label>
+                        <Form.Select
+                          name="role"
+                          value={editedUser?.role || ""}
+                          onChange={(e) =>
+                            setEditedUser((prev) => ({
+                              ...prev!,
+                              role: e.target.value as "ADMIN" | "USER",
+                            }))
+                          }
+                        >
+                          <option value="USER">User</option>
+                          <option value="ADMIN">Admin</option>
+                        </Form.Select>
+                      </Form.Group>
+                    )}
                   </Form>
                 ) : (
                   <Row>
                     <Col md={6}>
-                      <p>
-                        <strong>Email:</strong> {user?.email}
-                      </p>
+                      {(currentUser.role === "ADMIN" ||
+                        isUserProfileCurrentUser()) && (
+                        <p>
+                          <strong>Email:</strong> {user?.email}
+                        </p>
+                      )}
                       <p>
                         <strong>Date of Birth:</strong>{" "}
                         {user?.dob
-                          ? `${new Date(user.dob).getUTCMonth() + 1}/${new Date(user.dob).getUTCDate()}/${new Date(user.dob).getUTCFullYear()}`
+                          ? `${new Date(user.dob).getUTCMonth() + 1}/${new Date(
+                              user.dob
+                            ).getUTCDate()}/${new Date(
+                              user.dob
+                            ).getUTCFullYear()}`
                           : "Not set"}
                       </p>
                       <p>
