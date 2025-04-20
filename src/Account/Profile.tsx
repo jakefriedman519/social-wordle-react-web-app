@@ -29,6 +29,16 @@ interface Wordle {
   finishedDate?: Date;
 }
 
+interface Comment {
+  _id: string;
+  user: {
+    _id: string;
+    username: string;
+  };
+  text: string;
+  wordleDay: string;
+}
+
 // Tournament type
 interface Tournament {
   _id: string;
@@ -56,7 +66,7 @@ export default function ProfilePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
+    (state: RootState) => state.accountReducer,
   );
 
   const [user, setUser] = useState<User>();
@@ -66,12 +76,14 @@ export default function ProfilePage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [stats, setStats] = useState<Stats>();
   const [showShareAlert, setShowShareAlert] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState({
     user: true,
     pastWordles: true,
     tournaments: true,
     stats: true,
     admin: true,
+    comments: true,
   });
   const [errors, setErrors] = useState<{ [type: string]: string }>({});
   const [activeTab, setActiveTab] = useState<keyof typeof loading>("stats");
@@ -80,7 +92,7 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     await client.signout();
     dispatch(setCurrentUser(null));
-    navigate("/sign-in");
+    navigate("/login");
   };
 
   const handleEditToggle = () => {
@@ -135,7 +147,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!uid && !currentUser) {
-      navigate("/sign-in");
+      navigate("/login");
     }
     if (uid) {
       // Fetch user data based on uid
@@ -180,7 +192,7 @@ export default function ProfilePage() {
     const fetchUserWordles = async () => {
       try {
         const response = await client.getUserWordleGuesses(
-          uid || currentUser?._id || ""
+          uid || currentUser?._id || "",
         );
         setPastWordles(response);
         setLoading((prev) => ({ ...prev, pastWordles: false }));
@@ -195,7 +207,7 @@ export default function ProfilePage() {
     const fetchTournaments = async () => {
       try {
         const response = await client.getUserTournaments(
-          uid || currentUser?._id || ""
+          uid || currentUser?._id || "",
         );
         setTournaments(response);
         setLoading((prev) => ({ ...prev, tournaments: false }));
@@ -207,10 +219,22 @@ export default function ProfilePage() {
       }
     };
 
+    const fetchUserComments = async () => {
+      try {
+        const response = await client.getUserComments(
+          uid || currentUser?._id || "",
+        );
+        setComments(response);
+        setLoading((prev) => ({ ...prev, comments: false }));
+      } catch {
+        setErrors((prev) => ({ ...prev, comments: "Error fetching comments" }));
+      }
+    };
+
     const fetchStats = async () => {
       try {
         const response = await client.getUserStats(
-          uid || currentUser?._id || ""
+          uid || currentUser?._id || "",
         );
         setStats(response);
         setLoading((prev) => ({ ...prev, stats: false }));
@@ -224,6 +248,7 @@ export default function ProfilePage() {
 
     fetchUserWordles();
     fetchTournaments();
+    fetchUserComments();
     fetchStats();
   }, [currentUser, uid]);
 
@@ -271,7 +296,7 @@ export default function ProfilePage() {
                       <h2>
                         {stats
                           ? Math.round(
-                              (stats.gamesWon / stats.gamesPlayed) * 100
+                              (stats.gamesWon / stats.gamesPlayed) * 100,
                             )
                           : 0}
                         %
@@ -370,13 +395,13 @@ export default function ProfilePage() {
                                     .toISOString()
                                     .split("T")[0]
                                 }`
-                              : `/wordle/custom/${wordle.wordleId}`
+                              : `/wordle/custom/${wordle.wordleId}`,
                           )
                         }
                         variant="outline-primary"
                         size="sm"
                       >
-                        View Details
+                        View Wordle
                       </Button>
                     </div>
                   </ListGroup.Item>
@@ -477,6 +502,44 @@ export default function ProfilePage() {
             </ListGroup>
           </Card>
         );
+      case "comments":
+        return (
+          <Card>
+            <Card.Header>
+              <h5 className="mb-0">Comments</h5>
+            </Card.Header>
+            <ListGroup variant="flush">
+              {comments.length > 0 ? (
+                comments.map((comment) => (
+                  <ListGroup.Item
+                    key={comment._id}
+                    className="d-flex justify-content-between align-items-center"
+                  >
+                    <div>
+                      <h6 className="mb-0">{comment.text}</h6>
+                      <small className="text-muted">{comment.wordleDay}</small>
+                    </div>
+                    <div>
+                      <Button
+                        onClick={() =>
+                          navigate(
+                            `/details/${comment.wordleDay}?showDetails=true`,
+                          )
+                        }
+                        variant="outline-primary"
+                        size="sm"
+                      >
+                        View Details Page
+                      </Button>
+                    </div>
+                  </ListGroup.Item>
+                ))
+              ) : (
+                <ListGroup.Item>No comments yet.</ListGroup.Item>
+              )}
+            </ListGroup>
+          </Card>
+        );
       default:
         return null;
     }
@@ -529,7 +592,7 @@ export default function ProfilePage() {
                           navigator.clipboard.writeText(
                             `${window.location.origin.toString()}/profile/${
                               user?._id
-                            }`
+                            }`,
                           );
                           setShowShareAlert(true);
                         }}
@@ -557,6 +620,7 @@ export default function ProfilePage() {
               </div>
 
               {currentUser &&
+                isUserProfileCurrentUser() &&
                 (isEditing ? (
                   <Form>
                     <Row>
@@ -639,9 +703,9 @@ export default function ProfilePage() {
                         <strong>Date of Birth:</strong>{" "}
                         {user?.dob
                           ? `${new Date(user.dob).getUTCMonth() + 1}/${new Date(
-                              user.dob
+                              user.dob,
                             ).getUTCDate()}/${new Date(
-                              user.dob
+                              user.dob,
                             ).getUTCFullYear()}`
                           : "Not set"}
                       </p>
@@ -678,16 +742,15 @@ export default function ProfilePage() {
         <Nav.Item>
           <Nav.Link eventKey="stats">Stats</Nav.Link>
         </Nav.Item>
-        {currentUser === user && (
-          <Nav.Item>
-            <Nav.Link eventKey="pastWordles">Past Wordles</Nav.Link>
-          </Nav.Item>
-        )}
-        {currentUser === user && (
-          <Nav.Item>
-            <Nav.Link eventKey="tournaments">Tournaments</Nav.Link>
-          </Nav.Item>
-        )}
+        <Nav.Item>
+          <Nav.Link eventKey="pastWordles">Past Wordles</Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link eventKey="tournaments">Tournaments</Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link eventKey="comments">Comments</Nav.Link>
+        </Nav.Item>
         {currentUser?.role === "ADMIN" && (
           <Nav.Item>
             <Nav.Link eventKey="admin">Admin</Nav.Link>

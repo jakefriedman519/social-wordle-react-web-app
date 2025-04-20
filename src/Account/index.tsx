@@ -7,7 +7,7 @@ import { RootState } from "../store.ts";
 
 export default function Account() {
   const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
+    (state: RootState) => state.accountReducer,
   );
 
   return (
@@ -15,12 +15,12 @@ export default function Account() {
       <Routes>
         <Route
           path="/"
-          element={<Navigate to={currentUser ? "/profile" : "/sign-in"} />}
+          element={<Navigate to={currentUser ? "/profile" : "/login"} />}
         />
-        <Route path="/sign-in" element={<Signin />} />
+        <Route path="/login" element={<Signin />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:uid" element={<Profile />} />
-        <Route path="/sign-up" element={<Signup />} />
+        <Route path="/register" element={<Signup />} />
       </Routes>
     </>
   );

@@ -1,7 +1,22 @@
 import { Suspense, useEffect, useState } from "react";
-import { Container, Card, Button, Badge, Placeholder } from "react-bootstrap";
-import { Link, useParams, useSearchParams } from "react-router-dom";
-import * as client from "./client";
+import {
+  Container,
+  Card,
+  Button,
+  Badge,
+  Placeholder,
+  Alert,
+  Form,
+  InputGroup,
+} from "react-bootstrap";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import * as detailsClient from "./client";
+import { useSelector } from "react-redux";
 
 interface WordDetails {
   title: string;
@@ -10,20 +25,55 @@ interface WordDetails {
   error?: string;
 }
 
+interface Comment {
+  userId: {
+    _id: string;
+    username: string;
+  };
+  text: string;
+}
+
 export default function Details() {
   const { day } = useParams<{ day: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showDetails, setShowDetails] = useState(false);
   const [wordDetails, setWordDetails] = useState<WordDetails>();
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleCreateComment = async (commentText: string) => {
+    try {
+      const resp = await detailsClient.createComment(
+        currentUser._id,
+        day!,
+        commentText,
+      );
+      setComments((prev) => [...prev, resp]);
+      setError("");
+    } catch {
+      setError("Error creating comment");
+    }
+  };
 
   useEffect(() => {
     setShowDetails(searchParams.get("showDetails") === "true");
     const fetchDetails = async () => {
-      await client.getWordDetails((day || "").toLowerCase()).then((data) => {
-        setWordDetails(data);
-      });
+      await detailsClient
+        .getWordDetails((day || "").toLowerCase())
+        .then((data) => {
+          setWordDetails(data);
+        });
     };
+
+    const fetchComments = async () => {
+      const commentsResp = await detailsClient.getComments(day!);
+      setComments(commentsResp);
+    };
+
     fetchDetails();
+    fetchComments();
   }, [day, searchParams]);
 
   return (
@@ -40,6 +90,17 @@ export default function Details() {
           <Suspense fallback={<WordInfoSkeleton />}>
             <WordInfo details={wordDetails} />
           </Suspense>
+          <Comments
+            comments={comments}
+            navigate={navigate}
+            handleCreateComment={handleCreateComment}
+            currentUser={currentUser}
+          />
+          {error && (
+            <Alert className="mt-2" variant="danger">
+              {error}
+            </Alert>
+          )}
         </div>
       ) : (
         <div className="text-center mb-5">
@@ -64,6 +125,68 @@ export default function Details() {
   );
 }
 
+function Comments({
+  comments,
+  navigate,
+  handleCreateComment,
+  currentUser,
+}: {
+  comments: Comment[];
+  navigate: (path: string) => void;
+  handleCreateComment: (text: string) => Promise<void>;
+  currentUser: any;
+}) {
+  const [isCommenting, setIsCommenting] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>Comments</Card.Title>
+      </Card.Header>
+      <Card.Body>
+        {comments && comments.length > 0 ? (
+          comments.map((comment) => (
+            <div className="border border-1 mb-1 p-3 border-primary-subtle rounded">
+              <div>
+                <strong>{comment.userId.username}</strong>
+              </div>
+              <div>{comment.text}</div>
+            </div>
+          ))
+        ) : (
+          <Alert variant="primary">No comments yet!</Alert>
+        )}
+      </Card.Body>
+      <Card.Footer>
+        {currentUser ? (
+          isCommenting ? (
+            <InputGroup>
+              <Form.Control
+                value={commentText}
+                className="w-50"
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder={"Comment something..."}
+              ></Form.Control>
+              <Button
+                onClick={async () => {
+                  await handleCreateComment(commentText);
+                  setIsCommenting(false);
+                }}
+              >
+                Comment
+              </Button>
+            </InputGroup>
+          ) : (
+            <Button onClick={() => setIsCommenting(true)}>Add Comment</Button>
+          )
+        ) : (
+          <Button onClick={() => navigate("/login")}>Login to comment</Button>
+        )}
+      </Card.Footer>
+    </Card>
+  );
+}
+
 async function WordInfo({ details }: { details?: WordDetails }) {
   if (!details || details.error) {
     return (
@@ -82,7 +205,7 @@ async function WordInfo({ details }: { details?: WordDetails }) {
   }
 
   return (
-    <div className="mt-4">
+    <div>
       <Card className="mb-4">
         <Card.Header>
           <Card.Title>Definition & Information</Card.Title>
@@ -111,7 +234,7 @@ async function WordInfo({ details }: { details?: WordDetails }) {
       </Card>
 
       {details.related && details.related.length > 0 && (
-        <Card>
+        <Card className="mb-4">
           <Card.Header>
             <Card.Title>Related Terms</Card.Title>
             <Card.Subtitle className="text-muted">

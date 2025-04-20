@@ -75,7 +75,7 @@ export default function CreateTournament() {
             </Form.Group>
           </Col>
         </Row>
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" className="mt-2">
           Create Tournament
         </Button>
       </Form>

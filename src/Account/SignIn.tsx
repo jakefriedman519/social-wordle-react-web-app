@@ -29,7 +29,7 @@ export default function Signin() {
     }
     if (!user) return;
     dispatch(setCurrentUser(user));
-    navigate("/");
+    navigate("/wordle");
   };
 
   return (
@@ -59,7 +59,7 @@ export default function Signin() {
       >
         Sign in
       </Button>
-      <Link id="signup-link" to="/sign-up">
+      <Link id="signup-link" to="/register">
         Sign up
       </Link>
       <ToastContainer

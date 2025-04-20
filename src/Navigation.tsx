@@ -3,12 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { BsCalendar, BsTrophy } from "react-icons/bs";
 import { MdOutlineLeaderboard } from "react-icons/md";
-import { FaPencilAlt } from "react-icons/fa";
+import { FaHome, FaPencilAlt } from "react-icons/fa";
 
 // TODO change the colors/theme of the navbar/app
 export default function Navigation() {
   const { pathname } = useLocation();
   const links = [
+    { label: "Home", path: "home", icon: FaHome },
     { label: "Account", path: "profile", icon: FaRegCircleUser },
     { label: "Daily", path: "/wordle", icon: BsCalendar },
     { label: "Custom", path: "/wordle/custom", icon: FaPencilAlt },
@@ -30,7 +31,10 @@ export default function Navigation() {
         <Navbar.Collapse id="navbar-nav">
           <Nav className="ms-auto">
             {links.map((link) => {
-              const isActive = link.label === "Daily" ? pathname.includes(link.path) && !pathname.includes('custom') : pathname.includes(link.path);
+              const isActive =
+                link.label === "Daily"
+                  ? pathname.includes(link.path) && !pathname.includes("custom")
+                  : pathname.includes(link.path);
               return (
                 <Nav.Link
                   as={Link}

@@ -54,7 +54,7 @@ export default function Worldes() {
     const response = await client.getUserWordleGuessesByDate(day);
     setGuesses(response?.guesses ?? []);
     setCurrentGuess(
-      response?.guesses ? response.guesses[response.guesses.length - 1] : ""
+      response?.guesses ? response.guesses[response.guesses.length - 1] : "",
     );
     setTimeSpent(response?.timeSpent ?? 0);
     setGameOver(response?.completed ?? false);
@@ -78,7 +78,7 @@ export default function Worldes() {
       await client.updateUserWordleGuessByDate({
         createdDate: day || formatDate(new Date()),
         guesses,
-        completed: completed,
+        completed: completed || gameOver,
         timeSpent,
         finishedDate: completed ? formatDate(new Date()) : undefined,
       });
@@ -130,7 +130,9 @@ export default function Worldes() {
             variant="primary"
             className="mb-2"
             onClick={() =>
-              navigate(`/details/${day || formatDate(new Date())}?showDetails=${gameOver}`)
+              navigate(
+                `/details/${day || formatDate(new Date())}?showDetails=${gameOver}`,
+              )
             }
           >
             See Details

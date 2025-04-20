@@ -20,6 +20,10 @@ interface Tournament {
   endDate: Date;
   players: string[];
   maxPlayers: number;
+  creator: {
+    _id: string;
+    username: string;
+  };
 }
 
 export default function Tournaments() {
@@ -27,7 +31,9 @@ export default function Tournaments() {
   const [errors, setErrors] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer,
+  );
   useEffect(() => {
     const fetchTournaments = async () => {
       try {
@@ -81,15 +87,32 @@ export default function Tournaments() {
                         {tournament.players.length}/{tournament.maxPlayers}{" "}
                         Participants
                       </Badge>
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        onClick={() =>
-                          navigate(`/tournaments/${tournament._id}`)
-                        }
-                      >
-                        View Details
-                      </Button>
+                      <div>
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={() =>
+                            navigate(`/tournaments/${tournament._id}`)
+                          }
+                        >
+                          View Details
+                        </Button>
+                        {currentUser?._id === tournament.creator._id && (
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            className="ms-2"
+                            onClick={async () => {
+                              await client.deleteTournament(tournament._id);
+                              setTournaments((prev) =>
+                                prev.filter((t) => t._id !== tournament._id),
+                              );
+                            }}
+                          >
+                            Delete Tournament
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </Card.Body>
                 </Card>

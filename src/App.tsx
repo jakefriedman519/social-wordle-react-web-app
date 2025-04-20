@@ -15,6 +15,7 @@ import CustomWordleLeaderboard from "./Leaderboard/CustomWordleLeaderboard";
 import CreateTournament from "./Tournaments/CreateTournament.tsx";
 import TournamentPage from "./Tournaments/TournamentPage.tsx";
 import Details from "./Details/index.tsx";
+import LandingPage from "./LandingPage.tsx";
 
 // TODO add navigation throughout the pages ie back btns etc
 export default function App() {
@@ -26,7 +27,8 @@ export default function App() {
           <div className="container-fluid min-vh-100 d-flex flex-column align-items-center bg-light">
             <Routes>
               {/* wordles */}
-              <Route path="/" element={<Navigate to="wordle" />} />
+              <Route path="/" element={<Navigate to="home" />} />
+              <Route path="home" element={<LandingPage />} />
               <Route path="/wordle" element={<Worldes />} />
               <Route path="/wordle/:day" element={<Worldes />} />
               {/* custom wordles */}
@@ -73,14 +75,7 @@ export default function App() {
               />
               {/* leaderboard */}
               <Route path="/leaderboard/" element={<Leaderboard />} />
-              <Route
-                path="/leaderboard/:day"
-                element={
-                  <ProtectedRoute>
-                    <Leaderboard />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/leaderboard/:day" element={<Leaderboard />} />
               <Route
                 path="/leaderboard/custom/:wordleId"
                 element={
@@ -90,14 +85,7 @@ export default function App() {
                 }
               />
               {/* details */}
-              <Route
-                path="/details/:day"
-                element={
-                  <ProtectedRoute>
-                    <Details />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/details/:day" element={<Details />} />
               <Route path="*" element={<Account />} />
             </Routes>
           </div>

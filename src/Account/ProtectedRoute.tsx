@@ -12,7 +12,7 @@ export default function ProtectedRoute({
   adminOnly,
 }: ProtectedRouteProps) {
   const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
+    (state: RootState) => state.accountReducer,
   );
   if (currentUser) {
     if (adminOnly && currentUser.role !== "ADMIN") {
@@ -20,6 +20,6 @@ export default function ProtectedRoute({
     }
     return children;
   } else {
-    return <Navigate to="/sign-in" />;
+    return <Navigate to="/login" />;
   }
 }

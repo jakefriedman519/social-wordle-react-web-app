@@ -37,15 +37,10 @@ export default function SignUp() {
         placeholder="password"
         type="password"
       />
-      <Button
-        onClick={signup}
-        className="btn btn-primary mb-2 w-100"
-      >
+      <Button onClick={signup} className="btn btn-primary mb-2 w-100">
         Sign up
       </Button>
-      <Link to="/sign-in">
-        Sign in
-      </Link>
+      <Link to="/login">Sign in</Link>
     </div>
   );
 }

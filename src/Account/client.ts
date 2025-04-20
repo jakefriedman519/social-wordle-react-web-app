@@ -3,6 +3,7 @@ import { User } from "./reducer";
 export const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 export const USERS_API = `${REMOTE_SERVER}/api/users`;
 const WORDLE_GUESSES_API = `${REMOTE_SERVER}/api/wordle-guesses`;
+const COMMENTS_API = `${REMOTE_SERVER}/api/comments`;
 const axiosWithCredentials = axios.create({ withCredentials: true });
 
 export const signin = async (credentials: {
@@ -69,4 +70,11 @@ export const getUserStats = async (uid: string) => {
 export const getAllUsers = async () => {
   const response = await axiosWithCredentials.get(`${USERS_API}`);
   return response.data;
-}
+};
+
+export const getUserComments = async (userId: string) => {
+  const response = await axiosWithCredentials.get(
+    `${COMMENTS_API}/user/${userId}`,
+  );
+  return response.data;
+};
