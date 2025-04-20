@@ -71,9 +71,11 @@ export default function ProfilePage() {
     pastWordles: true,
     tournaments: true,
     stats: true,
+    admin: true,
   });
   const [errors, setErrors] = useState<{ [type: string]: string }>({});
   const [activeTab, setActiveTab] = useState<keyof typeof loading>("stats");
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   const handleSignOut = async () => {
     await client.signout();
@@ -105,14 +107,18 @@ export default function ProfilePage() {
       }
       const response = await client.updateUserProfile(editedUser);
       if (response) {
-        setUser((prev) => ({
-          ...prev!,
-          ...editedUser,
-        }));
-        setEditedUser(response);
+        if (currentUser?.role === "USER") {
+          setUser((prev) => ({
+            ...prev!,
+            ...editedUser,
+          }));
+          setEditedUser(response);
+          dispatch(setCurrentUser(response));
+        } else {
+          setEditedUser(user);
+        }
         setIsEditing(false);
         setLoading((prev) => ({ ...prev, user: false }));
-        dispatch(setCurrentUser(response));
       }
     } catch {
       setErrors((prev) => ({
@@ -152,6 +158,23 @@ export default function ProfilePage() {
       setUser(currentUser);
       setEditedUser(currentUser);
       setLoading((prev) => ({ ...prev, user: false }));
+    }
+
+    if (currentUser?.role === "ADMIN") {
+      const fetchAllUsers = async () => {
+        try {
+          const response = await client.getAllUsers();
+          setAllUsers(response);
+          setLoading((prev) => ({ ...prev, admin: false }));
+        } catch {
+          setErrors((prev) => ({
+            ...prev,
+            admin: "Error fetching all users",
+          }));
+        }
+      };
+
+      fetchAllUsers();
     }
 
     const fetchUserWordles = async () => {
@@ -199,11 +222,29 @@ export default function ProfilePage() {
       }
     };
 
-    // TODO track last activity and total activity
     fetchUserWordles();
-    fetchTournaments(); // TODO make this endpoints work
+    fetchTournaments();
     fetchStats();
   }, [currentUser, uid]);
+
+  useEffect(() => {
+    if (currentUser?.role === "ADMIN") {
+      const fetchAllUsers = async () => {
+        try {
+          const response = await client.getAllUsers();
+          setAllUsers(response);
+          setLoading((prev) => ({ ...prev, admin: false }));
+        } catch {
+          setErrors((prev) => ({
+            ...prev,
+            admin: "Error fetching all users",
+          }));
+        }
+      };
+
+      fetchAllUsers();
+    }
+  }, [editedUser]);
 
   // Render tab content based on active tab
   const renderTabContent = () => {
@@ -400,6 +441,42 @@ export default function ProfilePage() {
             </ListGroup>
           </Card>
         );
+      case "admin":
+        // TODO implement admin view, show a list of all users, allow clicking edit user to populate edit card with that use
+        return (
+          <Card>
+            <Card.Header>
+              <h5 className="mb-0">All Users</h5>
+            </Card.Header>
+            <ListGroup variant="flush">
+              {allUsers.map((user) => (
+                <ListGroup.Item>
+                  <div
+                    key={user._id}
+                    className="d-flex justify-content-between align-items-center"
+                  >
+                    <div>
+                      <h6 className="mb-0">
+                        {user.firstName} {user.lastName}
+                      </h6>
+                      <small className="text-muted">@{user.username}</small>
+                    </div>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={() => {
+                        setEditedUser(user);
+                        setIsEditing(true);
+                      }}
+                    >
+                      Edit User
+                    </Button>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Card>
+        );
       default:
         return null;
     }
@@ -437,34 +514,38 @@ export default function ProfilePage() {
               <div className="d-flex justify-content-between align-items-start mb-3">
                 <div>
                   <h1 className="mb-0">
-                    {user?.firstName} {user?.lastName}
+                    {editedUser?.firstName} {editedUser?.lastName}
                   </h1>
-                  <p className="text-muted">@{user?.username}</p>
+                  <p className="text-muted">@{editedUser?.username}</p>
                 </div>
                 {(currentUser?.role === "ADMIN" ||
                   isUserProfileCurrentUser()) && (
                   <div>
-                    <Button
-                      variant="outline-secondary"
-                      className="me-2"
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `${window.location.origin.toString()}/profile/${
-                            user?._id
-                          }`
-                        );
-                        setShowShareAlert(true);
-                      }}
-                    >
-                      Share Profile
-                    </Button>
-                    <Button
-                      variant="danger"
-                      className="me-2"
-                      onClick={handleSignOut}
-                    >
-                      Sign Out
-                    </Button>
+                    {!isEditing && (
+                      <Button
+                        variant="outline-secondary"
+                        className="me-2"
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            `${window.location.origin.toString()}/profile/${
+                              user?._id
+                            }`
+                          );
+                          setShowShareAlert(true);
+                        }}
+                      >
+                        Share Profile
+                      </Button>
+                    )}
+                    {!isEditing && (
+                      <Button
+                        variant="danger"
+                        className="me-2"
+                        onClick={handleSignOut}
+                      >
+                        Sign Out
+                      </Button>
+                    )}
                     <Button
                       variant={isEditing ? "success" : "outline-primary"}
                       onClick={handleEditToggle}
@@ -605,6 +686,11 @@ export default function ProfilePage() {
         {currentUser === user && (
           <Nav.Item>
             <Nav.Link eventKey="tournaments">Tournaments</Nav.Link>
+          </Nav.Item>
+        )}
+        {currentUser?.role === "ADMIN" && (
+          <Nav.Item>
+            <Nav.Link eventKey="admin">Admin</Nav.Link>
           </Nav.Item>
         )}
       </Nav>

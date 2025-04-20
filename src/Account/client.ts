@@ -65,3 +65,8 @@ export const getUserStats = async (uid: string) => {
   const response = await axiosWithCredentials.get(`${USERS_API}/${uid}/stats`);
   return response.data;
 };
+
+export const getAllUsers = async () => {
+  const response = await axiosWithCredentials.get(`${USERS_API}`);
+  return response.data;
+}
