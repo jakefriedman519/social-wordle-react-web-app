@@ -374,7 +374,9 @@ export default function ProfilePage() {
                       <h6 className="mb-0">
                         {wordle.completed
                           ? wordle.guesses[wordle.guesses.length - 1]
-                          : `Daily NYT Wordle`}
+                          : wordle?.wordleId
+                            ? "Unsolved Custom Wordle"
+                            : "Unsolved Daily NYT Wordle"}
                       </h6>
                       <small className="text-muted">
                         {wordle?.createdDate
@@ -711,18 +713,6 @@ export default function ProfilePage() {
                       </p>
                       <p>
                         <strong>Role:</strong> {user?.role}
-                      </p>
-                    </Col>
-                    <Col md={6}>
-                      <p>
-                        <strong>Last Activity:</strong>{" "}
-                        {user?.lastActivity
-                          ? new Date(user.lastActivity).toLocaleString()
-                          : "Unknown"}
-                      </p>
-                      <p>
-                        <strong>Total Activity:</strong>{" "}
-                        {user?.totalActivity || "0h"}
                       </p>
                     </Col>
                   </Row>

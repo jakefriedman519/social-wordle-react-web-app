@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import WordleGame from "./WordleGame/WordleGame";
 import * as client from "./client";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button, Spinner, Toast, ToastContainer } from "react-bootstrap";
 import DatePickerModal from "../shared/components/DatePickerModal";
 import { BsChevronLeft, BsCalendar, BsChevronRight } from "react-icons/bs";
@@ -219,7 +219,7 @@ export default function Worldes() {
                   {toast.refreshLink && (
                     <>
                       <br />
-                      <a href="/wordle">Return to today</a>
+                      <Link to="/wordle">Return to today</Link>
                     </>
                   )}
                 </Toast.Body>

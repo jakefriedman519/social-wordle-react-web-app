@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import WordleGame from "../WordleGame/WordleGame";
 import * as client from "../client";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Spinner, Toast, ToastContainer } from "react-bootstrap";
 import { CustomWordle } from ".";
 
@@ -40,11 +40,11 @@ export default function CustomWordleGame() {
 
   const fetchUserWordleGuess = async () => {
     const response = await client.getUserWordleGuessesByWordleId(
-      wordleId || ""
+      wordleId || "",
     );
     setGuesses(response?.guesses ?? []);
     setCurrentGuess(
-      response?.guesses ? response.guesses[response.guesses.length - 1] : ""
+      response?.guesses ? response.guesses[response.guesses.length - 1] : "",
     );
     setGameOver(response?.completed ?? false);
     setTimeSpent(response?.timeSpent ?? 0);
@@ -127,7 +127,7 @@ export default function CustomWordleGame() {
                   {toast.refreshLink && (
                     <>
                       <br />
-                      <a href="/wordle/custom">Return to custom wordles</a>
+                      <Link to="/wordle/custom">Return to custom wordles</Link>
                     </>
                   )}
                 </Toast.Body>

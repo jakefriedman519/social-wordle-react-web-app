@@ -5,6 +5,7 @@ import CreateWordleModal from "./CreateWordleModal";
 import _ from "lodash";
 import { RootState } from "../../store";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
@@ -24,7 +25,7 @@ export interface CustomWordle {
 
 export default function CustomWordles() {
   const { currentUser } = useSelector(
-    (state: RootState) => state.accountReducer
+    (state: RootState) => state.accountReducer,
   );
   const [allWordles, setAllWordles] = useState<CustomWordle[]>([]);
   const [wordles, setWordles] = useState<CustomWordle[]>([]);
@@ -67,7 +68,7 @@ export default function CustomWordles() {
     _.debounce((newSearch: string) => {
       setSearch(newSearch);
     }, 500),
-    []
+    [],
   );
 
   // Watch searchInput and debounce
@@ -193,18 +194,18 @@ export default function CustomWordles() {
                           Edit
                         </Button>
                       )}
-                    <a
-                      href={`/leaderboard/custom/${wordle._id}`}
+                    <Link
+                      to={`/leaderboard/custom/${wordle._id}`}
                       className="btn btn-secondary me-2"
                     >
                       Leaderboard
-                    </a>
-                    <a
-                      href={`/wordle/custom/${wordle._id}`}
+                    </Link>
+                    <Link
+                      to={`/wordle/custom/${wordle._id}`}
                       className="btn btn-primary"
                     >
                       Play
-                    </a>
+                    </Link>
                   </div>
                 </Card.Body>
               </Card>

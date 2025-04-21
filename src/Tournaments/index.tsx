@@ -12,6 +12,7 @@ import * as client from "./client";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
+import { formatDateUTC } from "../dateUtils.ts";
 
 interface Tournament {
   _id: string;
@@ -78,8 +79,8 @@ export default function Tournaments() {
                     <div>
                       <h4 className="fw-bold">{tournament.name}</h4>
                       <p className="text-muted mb-2">
-                        {new Date(tournament.startDate).toLocaleDateString()} -{" "}
-                        {new Date(tournament.endDate).toLocaleDateString()}
+                        {formatDateUTC(new Date(tournament.startDate))} -{" "}
+                        {formatDateUTC(new Date(tournament.endDate))}
                       </p>
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
