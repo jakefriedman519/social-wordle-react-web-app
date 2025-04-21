@@ -86,7 +86,13 @@ export default function Details() {
             </h1>
             <p className="text-muted">Detailed information about this word</p>
           </div>
-
+          <Button
+            className="mb-3"
+            variant="outline-primary"
+            onClick={() => navigate(`/wordle/${day}`)}
+          >
+            Back to Wordle
+          </Button>
           <Suspense fallback={<WordInfoSkeleton />}>
             <WordInfo details={wordDetails} />
           </Suspense>
@@ -148,7 +154,9 @@ function Comments({
           comments.map((comment) => (
             <div className="border border-1 mb-1 p-3 border-primary-subtle rounded">
               <div>
-                <strong>{comment.userId.username}</strong>
+                <Link to={`/profile/${comment.userId._id}`}>
+                  <strong>{comment.userId.username}</strong>
+                </Link>
               </div>
               <div>{comment.text}</div>
             </div>
