@@ -29,3 +29,8 @@ export const createComment = async (
   });
   return response.data;
 };
+
+export const deleteComment = async (id: string) => {
+  const response = await axiosWithCredentials.delete(`${COMMENTS_API}/${id}`);
+  return response.data;
+};

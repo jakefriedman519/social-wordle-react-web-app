@@ -26,6 +26,7 @@ interface WordDetails {
 }
 
 interface Comment {
+  _id: string;
   userId: {
     _id: string;
     username: string;
@@ -42,6 +43,17 @@ export default function Details() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await detailsClient.deleteComment(commentId);
+      setComments((prev) =>
+        prev.filter((comment) => comment._id !== commentId),
+      );
+    } catch {
+      setError("Error deleting comment");
+    }
+  };
 
   const handleCreateComment = async (commentText: string) => {
     try {
@@ -100,6 +112,7 @@ export default function Details() {
             comments={comments}
             navigate={navigate}
             handleCreateComment={handleCreateComment}
+            handleDeleteComment={handleDeleteComment}
             currentUser={currentUser}
           />
           {error && (
@@ -136,11 +149,13 @@ function Comments({
   navigate,
   handleCreateComment,
   currentUser,
+  handleDeleteComment,
 }: {
   comments: Comment[];
   navigate: (path: string) => void;
   handleCreateComment: (text: string) => Promise<void>;
   currentUser: any;
+  handleDeleteComment: (id: string) => Promise<void>;
 }) {
   const [isCommenting, setIsCommenting] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -158,7 +173,19 @@ function Comments({
                   <strong>{comment.userId.username}</strong>
                 </Link>
               </div>
-              <div>{comment.text}</div>
+              <div className="d-flex flex-row justify-content-between align-items-center">
+                <div>{comment.text}</div>
+                {(currentUser.role === "ADMIN" ||
+                  comment.userId._id === currentUser._id) && (
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={() => handleDeleteComment(comment._id)}
+                  >
+                    Delete Comment
+                  </Button>
+                )}
+              </div>
             </div>
           ))
         ) : (
@@ -179,6 +206,7 @@ function Comments({
                 onClick={async () => {
                   await handleCreateComment(commentText);
                   setIsCommenting(false);
+                  setCommentText("");
                 }}
               >
                 Comment
